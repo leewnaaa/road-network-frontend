@@ -2,10 +2,9 @@ import { FC, useEffect, useState } from 'react'
 import { Spinner } from 'react-bootstrap'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CityVideo } from '../components/CityVideo'
-import { SourceBadge } from '../components/SourceBadge'
 import { getFeed } from '../modules/citiesApi'
 import { formatCoords } from '../modules/media'
-import { CityFeed, DataSource } from '../modules/types'
+import { CityFeed } from '../modules/types'
 import { cityRoute, feedRoute } from '../Routes'
 
 // Страница «Лента»: полноэкранное видео города в стиле reels.
@@ -17,7 +16,6 @@ const FeedPage: FC = () => {
   const cityId = idParam ? Number(idParam) : undefined
 
   const [city, setCity] = useState<CityFeed | null>(null)
-  const [source, setSource] = useState<DataSource>('mock')
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState(false)
 
@@ -30,7 +28,6 @@ const FeedPage: FC = () => {
     getFeed(cityId, false, controller.signal)
       .then((result) => {
         setCity(result.data)
-        setSource(result.source)
         setLoading(false)
       })
       .catch(() => {})
@@ -61,8 +58,6 @@ const FeedPage: FC = () => {
     <div className="feed-page">
       <div className="reels-player">
         <CityVideo src={city.video_url} poster={city.image_url} />
-
-        <SourceBadge source={source} />
 
         <div className="reels-actions">
           <div className="action-item" title="Войдите, чтобы ставить лайки">

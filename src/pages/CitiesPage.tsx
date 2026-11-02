@@ -3,7 +3,6 @@ import { Spinner } from 'react-bootstrap'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CityCard } from '../components/CityCard'
 import { CityFilter, LAT_MAX } from '../components/CityFilter'
-import { SourceBadge } from '../components/SourceBadge'
 import { useCities } from '../hooks/useCities'
 import { useDebounce } from '../hooks/useDebounce'
 import { City, CityFilters, SortKey } from '../modules/types'
@@ -40,7 +39,7 @@ const CitiesPage: FC = () => {
 
   // широта — как lat_max на бэкенде; список обновляется после паузы в движении ползунка
   const debouncedLat = useDebounce(filters.latMax)
-  const { cities, source, loading } = useCities(debouncedLat)
+  const { cities, loading } = useCities(debouncedLat)
 
   // название и сортировка — пересчёт только при изменении данных или фильтра
   const visible = useMemo(() => {
@@ -54,7 +53,6 @@ const CitiesPage: FC = () => {
     <div className="grid-page">
       <div className="page-head">
         <h1 className="page-title">Города сети</h1>
-        <SourceBadge source={source} />
       </div>
 
       <CityFilter

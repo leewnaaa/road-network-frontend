@@ -2,10 +2,9 @@ import { FC, useEffect, useState } from 'react'
 import { Breadcrumb, Button, ListGroup, Spinner } from 'react-bootstrap'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { CityImage } from '../components/CityImage'
-import { SourceBadge } from '../components/SourceBadge'
 import { getCityById } from '../modules/citiesApi'
 import { formatCoords, formatDate } from '../modules/media'
-import { CityFeed, DataSource } from '../modules/types'
+import { CityFeed } from '../modules/types'
 import { ROUTES, ROUTE_LABELS, feedRoute } from '../Routes'
 
 // Страница «Подробнее»: фото, координаты, описание и переход в ленту
@@ -14,7 +13,6 @@ const CityPage: FC = () => {
   const navigate = useNavigate()
 
   const [city, setCity] = useState<CityFeed | null>(null)
-  const [source, setSource] = useState<DataSource>('mock')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -24,7 +22,6 @@ const CityPage: FC = () => {
     getCityById(Number(id), controller.signal)
       .then((result) => {
         setCity(result.data)
-        setSource(result.source)
         setLoading(false)
       })
       .catch(() => {})
@@ -64,7 +61,6 @@ const CityPage: FC = () => {
 
       <div className="page-head detail-head">
         <h1 className="page-title">{city.name}</h1>
-        <SourceBadge source={source} />
       </div>
 
       {city.description && <p className="detail-description">{city.description}</p>}
