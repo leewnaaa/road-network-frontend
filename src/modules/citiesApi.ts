@@ -1,8 +1,10 @@
 import { ApiResult, City, CityFeed } from './types'
 import { CITIES_MOCK } from './mock'
 
-// Все запросы идут на /api/... — dev-сервер Vite проксирует их на FastAPI (см. vite.config.ts).
-// Если бэкенд не отвечает или вернул ошибку, данные берутся из mock-коллекции.
+// В лабораторной 5 данные берутся только из mock-коллекции: запросов к бэкенду нет,
+// поэтому в Network нет ошибок. Чтобы подключить FastAPI (ЛР6), запустите
+// фронтенд с VITE_USE_MOCK=false — запросы пойдут на /api/... через proxy Vite.
+const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false'
 const API = '/api/cities'
 
 const fetchJson = async <T>(url: string, signal?: AbortSignal): Promise<T> => {
@@ -38,6 +40,7 @@ const mockFeed = (cityId?: number, next = false): CityFeed | null => {
 
 // GET /api/cities?lat_max=
 export const getCities = async (latMax?: number, signal?: AbortSignal): Promise<ApiResult<City[]>> => {
+  if (USE_MOCK) return { data: mockList(latMax), source: 'mock' }
   const query = latMax === undefined ? '' : `?lat_max=${latMax}`
   try {
     const data = await fetchJson<City[]>(`${API}${query}`, signal)
@@ -54,6 +57,7 @@ export const getFeed = async (
   next = false,
   signal?: AbortSignal,
 ): Promise<ApiResult<CityFeed | null>> => {
+  if (USE_MOCK) return { data: mockFeed(cityId, next), source: 'mock' }
   const url = cityId === undefined ? `${API}/feed` : `${API}/feed/${cityId}${next ? '?next=true' : ''}`
   try {
     const data = await fetchJson<CityFeed>(url, signal)

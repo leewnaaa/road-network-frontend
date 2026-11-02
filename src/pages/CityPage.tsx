@@ -34,7 +34,7 @@ const CityPage: FC = () => {
 
   if (loading) {
     return (
-      <div className="pageLoader">
+      <div className="page-loader">
         <Spinner animation="border" />
       </div>
     )
@@ -42,9 +42,9 @@ const CityPage: FC = () => {
 
   if (!city) {
     return (
-      <div className="page">
-        <p className="emptyText">Город не найден.</p>
-        <Button variant="dark" onClick={() => navigate(ROUTES.CITIES)}>
+      <div className="detail-page">
+        <p className="page-subtitle">Город не найден.</p>
+        <Button className="filter-apply-btn" onClick={() => navigate(ROUTES.CITIES)}>
           К списку городов
         </Button>
       </div>
@@ -52,7 +52,7 @@ const CityPage: FC = () => {
   }
 
   return (
-    <div className="page">
+    <div className="detail-page">
       <Breadcrumb className="crumbs">
         <Breadcrumb.Item linkAs={Link} linkProps={{ to: ROUTES.CITIES }}>
           {ROUTE_LABELS.CITIES}
@@ -60,16 +60,16 @@ const CityPage: FC = () => {
         <Breadcrumb.Item active>{city.name}</Breadcrumb.Item>
       </Breadcrumb>
 
-      <CityImage src={city.image_url} alt={city.name} className="cityHero" />
+      <CityImage src={city.image_url} alt={city.name} className="detail-image" />
 
-      <div className="pageHead">
-        <h1 className="pageTitle">{city.name}</h1>
+      <div className="page-head detail-head">
+        <h1 className="page-title">{city.name}</h1>
         <SourceBadge source={source} />
       </div>
 
-      {city.description && <p className="cityDescription">{city.description}</p>}
+      {city.description && <p className="detail-description">{city.description}</p>}
 
-      <ListGroup className="cityFacts">
+      <ListGroup className="detail-facts">
         <ListGroup.Item>
           <span>Координаты</span>
           <b>{formatCoords(city.lat, city.lon)}</b>
@@ -82,15 +82,15 @@ const CityPage: FC = () => {
         )}
         <ListGroup.Item>
           <span>Лайки</span>
-          <b>❤️ {city.likes_count}</b>
+          <b className="detail-likes">❤️ {city.likes_count}</b>
         </ListGroup.Item>
       </ListGroup>
 
-      <div className="cityButtons">
-        <Button variant="dark" onClick={() => navigate(feedRoute(city.id))}>
-          ▶ Смотреть в ленте
+      <div className="detail-buttons">
+        <Button className="filter-apply-btn" onClick={() => navigate(feedRoute(city.id))}>
+          Смотреть в ленте
         </Button>
-        <Button variant="outline-secondary" onClick={() => navigate(-1)}>
+        <Button className="outline-btn" onClick={() => navigate(-1)}>
           Назад
         </Button>
       </div>

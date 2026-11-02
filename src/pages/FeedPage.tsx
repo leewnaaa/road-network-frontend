@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from 'react'
-import { Button, Spinner } from 'react-bootstrap'
+import { Spinner } from 'react-bootstrap'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CityVideo } from '../components/CityVideo'
 import { SourceBadge } from '../components/SourceBadge'
@@ -38,7 +38,7 @@ const FeedPage: FC = () => {
     return () => controller.abort()
   }, [cityId])
 
-  // «Дальше»: бэкенд (или mock) возвращает следующий по порядку публикации город
+  // «Дальше»: следующий по порядку публикации город (после последнего — снова первый)
   const handleNext = async () => {
     if (!city) return
     const result = await getFeed(city.id, true)
@@ -47,49 +47,56 @@ const FeedPage: FC = () => {
 
   if (loading) {
     return (
-      <div className="pageLoader feedLoader">
+      <div className="page-loader feed-loader">
         <Spinner animation="border" variant="light" />
       </div>
     )
   }
 
   if (!city) {
-    return <p className="emptyText">Опубликованных городов пока нет.</p>
+    return <p className="page-subtitle">Опубликованных городов пока нет.</p>
   }
 
   return (
-    <div className="reels">
-      <CityVideo src={city.video_url} poster={city.image_url} />
+    <div className="feed-page">
+      <div className="reels-player">
+        <CityVideo src={city.video_url} poster={city.image_url} />
 
-      <SourceBadge source={source} />
+        <SourceBadge source={source} />
 
-      <div className="reelsActions">
-        <div className="reelsAction" title="Войдите, чтобы ставить лайки">
-          <span className="reelsCircle">{city.liked_by_me ? '❤️' : '🤍'}</span>
-          <span className="reelsActionLabel">{city.likes_count}</span>
+        <div className="reels-actions">
+          <div className="action-item" title="Войдите, чтобы ставить лайки">
+            <span className="action-circle">{city.liked_by_me ? '❤️' : '🤍'}</span>
+            <span className="action-label">{city.likes_count}</span>
+          </div>
+          <div className="action-item">
+            <button type="button" className="action-circle" onClick={() => navigate(cityRoute(city.id))}>
+              i
+            </button>
+            <span className="action-label">Подробнее</span>
+          </div>
+          <div className="action-item">
+            <button type="button" className="action-circle" onClick={handleNext}>
+              →
+            </button>
+            <span className="action-label">Дальше</span>
+          </div>
         </div>
-        <button type="button" className="reelsAction" onClick={handleNext}>
-          <span className="reelsCircle">→</span>
-          <span className="reelsActionLabel">Дальше</span>
-        </button>
-      </div>
 
-      <div className="reelsOverlay">
-        <h2 className="reelsTitle">{city.name}</h2>
-        <p className="reelsCoords">📍 {formatCoords(city.lat, city.lon)}</p>
-        {city.description && (
-          <p className={`reelsDesc ${expanded ? 'reelsDescOpen' : ''}`}>
-            {city.description}{' '}
-          </p>
-        )}
-        {city.description && city.description.length > 90 && (
-          <button type="button" className="reelsMore" onClick={() => setExpanded((value) => !value)}>
-            {expanded ? 'Свернуть' : 'Ещё...'}
-          </button>
-        )}
-        <Button variant="light" size="sm" className="reelsDetailBtn" onClick={() => navigate(cityRoute(city.id))}>
-          Подробнее о городе
-        </Button>
+        <div className="reels-overlay">
+          <h2>{city.name}</h2>
+          <p>📍 {formatCoords(city.lat, city.lon)}</p>
+          {city.description && (
+            <div className="reels-desc-wrap">
+              <p className={`description-text ${expanded ? 'expanded' : ''}`}>{city.description}</p>
+              {city.description.length > 90 && (
+                <button type="button" className="desc-more-inline" onClick={() => setExpanded((value) => !value)}>
+                  {expanded ? 'Свернуть' : 'Ещё...'}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

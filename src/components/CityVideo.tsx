@@ -16,7 +16,6 @@ export const CityVideo: FC<Props> = ({ src, poster }) => {
   return (
     <video
       key={current}
-      className="reelsVideo"
       src={current}
       poster={imageOrDefault(poster)}
       autoPlay

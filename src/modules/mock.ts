@@ -3,8 +3,6 @@ import { City } from './types'
 // Коллекция mock-объектов. Используется, когда бэкенд недоступен.
 // У части городов поля image_url / video_url пустые — для них подставляются
 // изображение и видео по умолчанию из папки public/.
-// У Казани и Твери указаны ссылки на MinIO: без запущенного бэкенда они не загрузятся,
-// и сработает запасной вариант через onError.
 export const CITIES_MOCK: City[] = [
   {
     id: 1,
@@ -25,8 +23,8 @@ export const CITIES_MOCK: City[] = [
     description: 'Промежуточный узел на трассе М-11 «Нева» между Москвой и Санкт-Петербургом.',
     lat: 56.8587,
     lon: 35.9176,
-    image_url: 'http://localhost:9000/cities/img_tver.jpg',
-    video_url: 'http://localhost:9000/cities/vid_tver.mp4',
+    image_url: '',
+    video_url: '',
     likes_count: 7,
     is_mine: 0,
     published_at: '2026-10-03T12:30:00Z',
@@ -61,7 +59,7 @@ export const CITIES_MOCK: City[] = [
     description: 'Восточный узел трассы М-12; родительский город — Нижний Новгород.',
     lat: 55.7963,
     lon: 49.1088,
-    image_url: 'http://localhost:9000/cities/img_kazan.jpg',
+    image_url: '',
     video_url: '',
     likes_count: 23,
     is_mine: 0,

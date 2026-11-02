@@ -7,7 +7,7 @@ import { SourceBadge } from '../components/SourceBadge'
 import { useCities } from '../hooks/useCities'
 import { useDebounce } from '../hooks/useDebounce'
 import { City, CityFilters, SortKey } from '../modules/types'
-import { cityRoute, feedRoute } from '../Routes'
+import { cityRoute } from '../Routes'
 
 const DEFAULT_FILTERS: CityFilters = { search: '', latMax: LAT_MAX, sort: 'name' }
 
@@ -38,11 +38,11 @@ const CitiesPage: FC = () => {
     setParams(query, { replace: true })
   }
 
-  // широта фильтруется на бэкенде (lat_max), запрос — после паузы в движении ползунка
+  // широта — как lat_max на бэкенде; список обновляется после паузы в движении ползунка
   const debouncedLat = useDebounce(filters.latMax)
   const { cities, source, loading } = useCities(debouncedLat)
 
-  // название и сортировка — на клиенте, пересчёт только при изменении данных или фильтра
+  // название и сортировка — пересчёт только при изменении данных или фильтра
   const visible = useMemo(() => {
     const search = filters.search.trim().toLowerCase()
     return cities
@@ -51,9 +51,9 @@ const CitiesPage: FC = () => {
   }, [cities, filters.search, filters.sort])
 
   return (
-    <div className="page">
-      <div className="pageHead">
-        <h1 className="pageTitle">Города сети</h1>
+    <div className="grid-page">
+      <div className="page-head">
+        <h1 className="page-title">Города сети</h1>
         <SourceBadge source={source} />
       </div>
 
@@ -65,20 +65,15 @@ const CitiesPage: FC = () => {
       />
 
       {loading ? (
-        <div className="pageLoader">
+        <div className="page-loader">
           <Spinner animation="border" />
         </div>
       ) : visible.length === 0 ? (
-        <p className="emptyText">По заданному фильтру городов не найдено.</p>
+        <p className="page-subtitle">По заданному фильтру городов не найдено.</p>
       ) : (
-        <div className="cityGrid">
+        <div className="grid-container">
           {visible.map((city) => (
-            <CityCard
-              key={city.id}
-              city={city}
-              onOpen={(id) => navigate(cityRoute(id))}
-              onWatch={(id) => navigate(feedRoute(id))}
-            />
+            <CityCard key={city.id} city={city} onOpen={(id) => navigate(cityRoute(id))} />
           ))}
         </div>
       )}

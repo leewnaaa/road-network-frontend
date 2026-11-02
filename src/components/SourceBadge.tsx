@@ -6,10 +6,9 @@ interface Props {
   source: DataSource
 }
 
-// Показывает, откуда взяты данные: с бэкенда или из mock-коллекции
-export const SourceBadge: FC<Props> = ({ source }) =>
-  source === 'api' ? (
-    <Badge bg="success" className="sourceBadge">данные: API</Badge>
-  ) : (
-    <Badge bg="warning" text="dark" className="sourceBadge">данные: mock</Badge>
-  )
+// Показывает, откуда взяты данные: из mock-коллекции или с бэкенда
+export const SourceBadge: FC<Props> = ({ source }) => (
+  <Badge bg="" className={`source-badge ${source === 'api' ? 'source-api' : 'source-mock'}`}>
+    {source === 'api' ? 'данные: API' : 'данные: mock'}
+  </Badge>
+)

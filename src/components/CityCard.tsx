@@ -1,33 +1,23 @@
 import { FC } from 'react'
-import { Button, Card } from 'react-bootstrap'
+import { Card } from 'react-bootstrap'
 import { City } from '../modules/types'
 import { formatCoords } from '../modules/media'
 import { CityImage } from './CityImage'
 
 interface Props {
-  city: City
-  onOpen: (id: number) => void // «Подробнее» — страница города
-  onWatch: (id: number) => void // «В ленте» — лента на этом городе
+  city: City // данные карточки
+  onOpen: (id: number) => void // переход на страницу «Подробнее»
 }
 
-// Карточка города для страницы «Плитка». Данные и обработчики приходят через props.
-export const CityCard: FC<Props> = ({ city, onOpen, onWatch }) => (
-  <Card className="cityCard">
-    <div className="cityCardImageWrap" onClick={() => onOpen(city.id)}>
-      <CityImage src={city.image_url} alt={city.name} className="cityCardImage" />
-    </div>
-    <Card.Body className="cityCardBody">
-      <Card.Title className="cityCardTitle">{city.name}</Card.Title>
-      <Card.Text className="cityCardMeta">📍 {formatCoords(city.lat, city.lon)}</Card.Text>
-      <Card.Text className="cityCardMeta">❤️ {city.likes_count}</Card.Text>
-      <div className="cityCardActions">
-        <Button size="sm" variant="dark" onClick={() => onOpen(city.id)}>
-          Подробнее
-        </Button>
-        <Button size="sm" variant="outline-dark" onClick={() => onWatch(city.id)} title="Открыть в ленте">
-          ▶
-        </Button>
-      </div>
+// Карточка города для страницы «Плитка» (вёрстка как в ЛР1). Данные и обработчик приходят через props.
+export const CityCard: FC<Props> = ({ city, onOpen }) => (
+  <Card className="card" onClick={() => onOpen(city.id)}>
+    <CityImage src={city.image_url} alt={city.name} />
+    <Card.Body className="card-body">
+      <Card.Title as="h3">{city.name}</Card.Title>
+      <p className="card-coords">📍 {formatCoords(city.lat, city.lon)}</p>
+      <p className="card-likes">❤️ {city.likes_count}</p>
+      <span className="cost-badge">Подробнее</span>
     </Card.Body>
   </Card>
 )

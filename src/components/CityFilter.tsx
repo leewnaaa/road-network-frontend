@@ -21,30 +21,9 @@ const SORT_OPTIONS: { value: SortKey; label: string }[] = [
 // Управляемый компонент фильтра: своего состояния не имеет,
 // всё получает через props и сообщает об изменениях через onChange.
 export const CityFilter: FC<Props> = ({ value, onChange, onReset, found }) => (
-  <Form className="cityFilter" onSubmit={(event) => event.preventDefault()}>
-    <Form.Control
-      type="search"
-      placeholder="Поиск по названию города"
-      value={value.search}
-      onChange={(event) => onChange({ ...value, search: event.target.value })}
-    />
-
-    <Form.Group>
-      <Form.Label className="cityFilterLabel">
-        Широта до: <b>{value.latMax.toFixed(1)}°</b>
-      </Form.Label>
-      <Form.Range
-        min={LAT_MIN}
-        max={LAT_MAX}
-        step={0.5}
-        value={value.latMax}
-        onChange={(event) => onChange({ ...value, latMax: Number(event.target.value) })}
-      />
-    </Form.Group>
-
-    <div className="cityFilterRow">
+  <Form className="filter-form" onSubmit={(event) => event.preventDefault()}>
+    <div className="filters">
       <Form.Select
-        size="sm"
         value={value.sort}
         onChange={(event) => onChange({ ...value, sort: event.target.value as SortKey })}
       >
@@ -54,11 +33,32 @@ export const CityFilter: FC<Props> = ({ value, onChange, onReset, found }) => (
           </option>
         ))}
       </Form.Select>
-      <Button size="sm" variant="outline-secondary" onClick={onReset}>
-        Сбросить
-      </Button>
     </div>
 
-    <div className="cityFilterFound">Найдено городов: {found}</div>
+    <div className="filters">
+      <Form.Control
+        type="search"
+        placeholder="Поиск по названию"
+        value={value.search}
+        onChange={(event) => onChange({ ...value, search: event.target.value })}
+      />
+    </div>
+
+    <div className="filter-slider">
+      <Form.Label>
+        <span>Широта до: {value.latMax.toFixed(1)}°</span>
+        <span className="filter-found">найдено: {found}</span>
+      </Form.Label>
+      <Form.Range
+        min={LAT_MIN}
+        max={LAT_MAX}
+        step={0.5}
+        value={value.latMax}
+        onChange={(event) => onChange({ ...value, latMax: Number(event.target.value) })}
+      />
+      <Button className="filter-apply-btn" onClick={onReset}>
+        Сбросить фильтр
+      </Button>
+    </div>
   </Form>
 )
