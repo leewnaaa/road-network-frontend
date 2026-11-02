@@ -35,15 +35,6 @@ export const CityFilter: FC<Props> = ({ value, onChange, onReset, found }) => (
       </Form.Select>
     </div>
 
-    <div className="filters">
-      <Form.Control
-        type="search"
-        placeholder="Поиск по названию"
-        value={value.search}
-        onChange={(event) => onChange({ ...value, search: event.target.value })}
-      />
-    </div>
-
     <div className="filter-slider">
       <Form.Label>
         <span>Широта до: {value.latMax.toFixed(1)}°</span>

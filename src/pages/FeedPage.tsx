@@ -5,7 +5,7 @@ import { CityVideo } from '../components/CityVideo'
 import { getFeed } from '../modules/citiesApi'
 import { formatCoords } from '../modules/media'
 import { CityFeed } from '../modules/types'
-import { cityRoute, feedRoute } from '../Routes'
+import { feedRoute } from '../Routes'
 
 // Страница «Лента»: полноэкранное видео города в стиле reels.
 // ?city_id= задаёт город; без параметра показывается самый новый.
@@ -63,12 +63,6 @@ const FeedPage: FC = () => {
           <div className="action-item" title="Войдите, чтобы ставить лайки">
             <span className="action-circle">{city.liked_by_me ? '❤️' : '🤍'}</span>
             <span className="action-label">{city.likes_count}</span>
-          </div>
-          <div className="action-item">
-            <button type="button" className="action-circle" onClick={() => navigate(cityRoute(city.id))}>
-              i
-            </button>
-            <span className="action-label">Подробнее</span>
           </div>
           <div className="action-item">
             <button type="button" className="action-circle" onClick={handleNext}>

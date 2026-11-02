@@ -29,7 +29,6 @@ export type SortKey = 'name' | 'date' | 'likes'
 
 // Значения фильтра на странице «Плитка»
 export interface CityFilters {
-  search: string // часть названия города
   latMax: number // максимальная широта (как lat_max на бэкенде)
   sort: SortKey
 }
