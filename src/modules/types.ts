@@ -9,7 +9,7 @@ export interface City {
   video_url: string | null
   likes_count: number
   is_mine: 0 | 1
-  published_at?: string // ISO-дата публикации (есть в mock; нужна для сортировки «Сначала новые»)
+  published_at?: string // ISO-дата публикации (есть в mock; задаёт порядок ленты)
 }
 
 // Элемент ленты: плюс признак лайка текущего пользователя (для гостя всегда 0)
@@ -25,10 +25,7 @@ export interface ApiResult<T> {
   source: DataSource
 }
 
-export type SortKey = 'name' | 'date' | 'likes'
-
 // Значения фильтра на странице «Плитка»
 export interface CityFilters {
   latMax: number // максимальная широта (как lat_max на бэкенде)
-  sort: SortKey
 }
