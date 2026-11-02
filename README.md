@@ -71,6 +71,7 @@ npm run build    # production-сборка в dist/
 ```
 public/
   DefaultImage.jpg, DefaultVideo.mp4   изображение и видео по умолчанию
+  mock/                                фото и видео mock-городов (Москва, Нижний Новгород, Владимир, Новосибирск)
 src/
   main.tsx              точка входа, подключение bootstrap.css
   App.tsx               роутинг (react-router-dom)
@@ -90,7 +91,7 @@ src/
     useDebounce.ts      задержка значения ползунка
   modules/
     types.ts            типы City, CityFeed, CityFilters
-    mock.ts             коллекция mock-объектов (8 городов)
+    mock.ts             коллекция mock-объектов (10 городов)
     citiesApi.ts        получение данных: mock (ЛР5) или API при VITE_USE_MOCK=false
     media.ts            файлы по умолчанию, форматирование координат и дат
   pages/

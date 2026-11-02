@@ -1,8 +1,10 @@
 import { City } from './types'
 
-// Коллекция mock-объектов. Используется, когда бэкенд недоступен.
-// У части городов поля image_url / video_url пустые — для них подставляются
-// изображение и видео по умолчанию из папки public/.
+// Коллекция mock-объектов (в ЛР5 — единственный источник данных).
+// Фото и видео части городов лежат в проекте, в public/mock/.
+// У остальных поля image_url / video_url пустые — для них подставляются
+// изображение и видео по умолчанию (public/DefaultImage.jpg, public/DefaultVideo.mp4).
+// У Новосибирска есть только фото: в ленте у него видео по умолчанию.
 export const CITIES_MOCK: City[] = [
   {
     id: 1,
@@ -11,11 +13,11 @@ export const CITIES_MOCK: City[] = [
       'Центральный узел дорожной сети. Отсюда расходятся федеральные трассы М-1, М-4, М-7, М-10, М-11 и М-12; все остальные города подключаются к ней по схеме «звезда».',
     lat: 55.7558,
     lon: 37.6173,
-    image_url: '',
-    video_url: '',
+    image_url: '/mock/moscow.jpg',
+    video_url: '/mock/moscow.mp4',
     likes_count: 42,
     is_mine: 0,
-    published_at: '2026-10-01T10:00:00Z',
+    published_at: '2026-10-30T10:00:00Z',
   },
   {
     id: 2,
@@ -47,8 +49,8 @@ export const CITIES_MOCK: City[] = [
     description: 'Узел трассы М-7 «Волга» на слиянии Оки и Волги.',
     lat: 56.2965,
     lon: 43.9361,
-    image_url: '',
-    video_url: '',
+    image_url: '/mock/nn.jpg',
+    video_url: '/mock/nn.MP4',
     likes_count: 18,
     is_mine: 0,
     published_at: '2026-10-08T14:00:00Z',
@@ -100,5 +102,29 @@ export const CITIES_MOCK: City[] = [
     likes_count: 15,
     is_mine: 0,
     published_at: '2026-10-22T17:05:00Z',
+  },
+  {
+    id: 9,
+    name: 'Владимир',
+    description: 'Промежуточный узел трассы М-7 «Волга» между Москвой и Нижним Новгородом.',
+    lat: 56.1291,
+    lon: 40.4066,
+    image_url: '/mock/vladimir.webp',
+    video_url: '/mock/vladimir.MP4',
+    likes_count: 9,
+    is_mine: 0,
+    published_at: '2026-10-25T13:40:00Z',
+  },
+  {
+    id: 10,
+    name: 'Новосибирск',
+    description: 'Восточный узел сети на трассе Р-254 «Иртыш»; самый удалённый город «звезды».',
+    lat: 55.0084,
+    lon: 82.9357,
+    image_url: '/mock/nsk.jpg',
+    video_url: '',
+    likes_count: 12,
+    is_mine: 0,
+    published_at: '2026-10-28T07:30:00Z',
   },
 ]
