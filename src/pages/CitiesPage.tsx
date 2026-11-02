@@ -6,7 +6,7 @@ import { CityFilter, LAT_MAX } from '../components/CityFilter'
 import { useCities } from '../hooks/useCities'
 import { useDebounce } from '../hooks/useDebounce'
 import { CityFilters } from '../modules/types'
-import { cityRoute } from '../Routes'
+import { feedRoute } from '../Routes'
 
 const DEFAULT_FILTERS: CityFilters = { latMax: LAT_MAX }
 
@@ -15,7 +15,7 @@ const CitiesPage: FC = () => {
   const navigate = useNavigate()
 
   // Фильтр хранится в адресной строке (?lat_max=), поэтому сохраняется
-  // при возврате со страницы «Подробнее» и при обновлении страницы
+  // при возврате из ленты и при обновлении страницы
   const [params, setParams] = useSearchParams()
   const filters: CityFilters = {
     latMax: Number(params.get('lat_max') ?? DEFAULT_FILTERS.latMax),
@@ -53,7 +53,7 @@ const CitiesPage: FC = () => {
       ) : (
         <div className="grid-container">
           {cities.map((city) => (
-            <CityCard key={city.id} city={city} onOpen={(id) => navigate(cityRoute(id))} />
+            <CityCard key={city.id} city={city} onOpen={(id) => navigate(feedRoute(id))} />
           ))}
         </div>
       )}

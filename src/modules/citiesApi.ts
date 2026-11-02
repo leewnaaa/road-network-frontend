@@ -67,7 +67,3 @@ export const getFeed = async (
     return { data: mockFeed(cityId, next), source: 'mock' }
   }
 }
-
-// Одна услуга для страницы «Подробнее». Отдельного метода у бэкенда нет,
-// поэтому используется лента с city_id (она возвращает опубликованную услугу по id).
-export const getCityById = (cityId: number, signal?: AbortSignal) => getFeed(cityId, false, signal)

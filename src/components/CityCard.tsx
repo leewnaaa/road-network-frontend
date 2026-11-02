@@ -6,7 +6,7 @@ import { CityImage } from './CityImage'
 
 interface Props {
   city: City // данные карточки
-  onOpen: (id: number) => void // переход на страницу «Подробнее»
+  onOpen: (id: number) => void // переход в ленту на этом городе
 }
 
 // Карточка города для страницы «Плитка» (вёрстка как в ЛР1). Данные и обработчик приходят через props.

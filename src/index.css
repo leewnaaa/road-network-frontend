@@ -71,8 +71,7 @@ p { margin-bottom: 0; }
   min-height: 0;
 }
 
-.grid-page,
-.detail-page { padding-bottom: 18px; }
+.grid-page { padding-bottom: 18px; }
 
 .page-head {
   display: flex;
@@ -399,49 +398,4 @@ p { margin-bottom: 0; }
   font-weight: 700;
   padding: 5px 10px;
   border-radius: 14px;
-}
-
-/* ============================================
-   ПОДРОБНЕЕ
-   ============================================ */
-.crumbs { margin: 14px 18px 0; font-size: 13px; }
-.crumbs .breadcrumb { margin-bottom: 10px; }
-.crumbs a { color: var(--muted); text-decoration: none; }
-.crumbs a:hover { color: var(--accent); }
-.crumbs .breadcrumb-item.active { color: var(--text); font-weight: 600; }
-
-.detail-image {
-  display: block;
-  width: calc(100% - 36px);
-  height: 200px;
-  margin: 0 18px;
-  object-fit: cover;
-  border-radius: 12px;
-  border: 1px solid var(--line);
-}
-
-.detail-head { margin-top: 14px; }
-
-.detail-description {
-  font-size: 13px;
-  line-height: 1.5;
-  color: #333;
-  margin: 0 18px 14px;
-}
-
-.detail-facts { margin: 0 18px 16px; border-radius: 10px; }
-.detail-facts .list-group-item {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  border-color: var(--line);
-}
-.detail-facts .list-group-item span { color: var(--muted); }
-.detail-likes { color: var(--accent); }
-
-.detail-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin: 0 18px;
 }

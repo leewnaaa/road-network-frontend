@@ -8,6 +8,3 @@ export const videoOrDefault = (url: string | null | undefined): string => url ||
 
 export const formatCoords = (lat: number | null, lon: number | null): string =>
   lat === null || lon === null ? 'координаты не указаны' : `${lat.toFixed(4)}, ${lon.toFixed(4)}`
-
-export const formatDate = (iso: string): string =>
-  new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })

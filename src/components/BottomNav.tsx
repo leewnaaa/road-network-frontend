@@ -15,7 +15,6 @@ const ITEMS: { key: RouteKey; enabled: boolean }[] = [
 export const BottomNav: FC = () => {
   const { pathname } = useLocation()
 
-  // «Плитка» подсвечивается и на странице «Подробнее» (/cities/:id)
   const isActive = (key: RouteKey) =>
     key === 'FEED' ? pathname === ROUTES.FEED : pathname.startsWith(ROUTES[key])
 

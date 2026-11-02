@@ -14,7 +14,5 @@ export const ROUTE_LABELS: Record<RouteKey, string> = {
   LOGIN: 'Вход',
 }
 
-// Адрес страницы «Подробнее» для конкретного города
-export const cityRoute = (id: number) => `${ROUTES.CITIES}/${id}`
 // Лента, открытая на конкретном городе
 export const feedRoute = (id: number) => `${ROUTES.FEED}?city_id=${id}`
