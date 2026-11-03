@@ -6,8 +6,6 @@ interface Props {
   poster: string | null
 }
 
-// Видео для ленты. Пустое поле → видео по умолчанию; ошибка загрузки → тоже по умолчанию.
-// autoPlay + muted + playsInline нужны для автозапуска в мобильных браузерах.
 export const CityVideo: FC<Props> = ({ src, poster }) => {
   const [current, setCurrent] = useState(videoOrDefault(src))
 

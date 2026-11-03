@@ -7,12 +7,9 @@ interface Props {
   className?: string
 }
 
-// Фото города. Если поле пустое — сразу берётся изображение по умолчанию.
-// Если ссылка есть, но файл не загрузился (MinIO выключен, 404) — подменяем в onError.
 export const CityImage: FC<Props> = ({ src, alt, className }) => {
   const [current, setCurrent] = useState(imageOrDefault(src))
 
-  // при переходе к другому городу сбрасываем подмену
   useEffect(() => setCurrent(imageOrDefault(src)), [src])
 
   return (

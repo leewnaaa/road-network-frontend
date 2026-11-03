@@ -6,14 +6,12 @@ export const LAT_MIN = 40
 export const LAT_MAX = 70
 
 interface Props {
-  value: CityFilters // текущее значение фильтра (хранится в родителе — CitiesPage)
-  onChange: (value: CityFilters) => void // родитель обновляет своё состояние
+  value: CityFilters
+  onChange: (value: CityFilters) => void
   onReset: () => void
-  found: number // сколько городов осталось после фильтрации
+  found: number
 }
 
-// Управляемый компонент фильтра по широте: своего состояния не имеет,
-// значение получает через props и сообщает об изменениях через onChange.
 export const CityFilter: FC<Props> = ({ value, onChange, onReset, found }) => (
   <Form className="filter-slider" onSubmit={(event) => event.preventDefault()}>
     <Form.Label>

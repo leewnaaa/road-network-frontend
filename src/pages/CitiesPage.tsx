@@ -10,12 +10,9 @@ import { feedRoute } from '../Routes'
 
 const DEFAULT_FILTERS: CityFilters = { latMax: LAT_MAX }
 
-// Страница «Плитка»: фильтр по широте + сетка карточек в 2 колонки
 const CitiesPage: FC = () => {
   const navigate = useNavigate()
 
-  // Фильтр хранится в адресной строке (?lat_max=), поэтому сохраняется
-  // при возврате из ленты и при обновлении страницы
   const [params, setParams] = useSearchParams()
   const filters: CityFilters = {
     latMax: Number(params.get('lat_max') ?? DEFAULT_FILTERS.latMax),
@@ -27,7 +24,6 @@ const CitiesPage: FC = () => {
     setParams(query, { replace: true })
   }
 
-  // широта — как lat_max на бэкенде; список обновляется после паузы в движении ползунка
   const debouncedLat = useDebounce(filters.latMax)
   const { cities, loading } = useCities(debouncedLat)
 

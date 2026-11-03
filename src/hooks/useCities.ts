@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react'
 import { getCities } from '../modules/citiesApi'
 import { City } from '../modules/types'
 
-// Пользовательский хук: загружает список городов с фильтром по широте.
-// Запрос повторяется при каждом изменении latMax; предыдущий запрос отменяется.
 export const useCities = (latMax: number) => {
   const [cities, setCities] = useState<City[]>([])
   const [loading, setLoading] = useState(true)
@@ -18,10 +16,8 @@ export const useCities = (latMax: number) => {
         setLoading(false)
       })
       .catch(() => {
-        // запрос отменён при размонтировании или смене фильтра — ничего не делаем
       })
 
-    // cleanup: срабатывает перед следующим запуском эффекта и при размонтировании
     return () => controller.abort()
   }, [latMax])
 

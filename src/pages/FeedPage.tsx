@@ -7,8 +7,6 @@ import { formatCoords } from '../modules/media'
 import { CityFeed } from '../modules/types'
 import { feedRoute } from '../Routes'
 
-// Страница «Лента»: полноэкранное видео города в стиле reels.
-// ?city_id= задаёт город; без параметра показывается самый новый.
 const FeedPage: FC = () => {
   const [params] = useSearchParams()
   const navigate = useNavigate()
@@ -19,7 +17,6 @@ const FeedPage: FC = () => {
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState(false)
 
-  // загрузка при монтировании и при каждом изменении city_id в адресе
   useEffect(() => {
     const controller = new AbortController()
     setLoading(true)
@@ -35,7 +32,6 @@ const FeedPage: FC = () => {
     return () => controller.abort()
   }, [cityId])
 
-  // «Дальше»: следующий по порядку публикации город (после последнего — снова первый)
   const handleNext = async () => {
     if (!city) return
     const result = await getFeed(city.id, true)
