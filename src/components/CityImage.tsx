@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from 'react'
-import { DEFAULT_IMAGE, imageOrDefault } from '../modules/media'
+import { DEFAULT_IMAGE, mediaCandidates } from '../modules/media'
 
 interface Props {
   src: string | null
@@ -7,17 +7,19 @@ interface Props {
   className?: string
 }
 
+// Фото города: сначала через proxy /minio, затем напрямую, затем изображение по умолчанию
 export const CityImage: FC<Props> = ({ src, alt, className }) => {
-  const [current, setCurrent] = useState(imageOrDefault(src))
+  const candidates = mediaCandidates(src, DEFAULT_IMAGE)
+  const [index, setIndex] = useState(0)
 
-  useEffect(() => setCurrent(imageOrDefault(src)), [src])
+  useEffect(() => setIndex(0), [src])
 
   return (
     <img
-      src={current}
+      src={candidates[Math.min(index, candidates.length - 1)]}
       alt={alt}
       className={className}
-      onError={() => current !== DEFAULT_IMAGE && setCurrent(DEFAULT_IMAGE)}
+      onError={() => setIndex((value) => Math.min(value + 1, candidates.length - 1))}
     />
   )
 }

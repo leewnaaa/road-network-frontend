@@ -12,6 +12,11 @@ export default defineConfig({
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
       },
+      // статические файлы бэкенда (/static/img/...), если в БД записан такой путь
+      '/static': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
       // 2-й маршрут: файлы из MinIO (S3). /minio/cities/<файл> -> http://127.0.0.1:9000/cities/<файл>
       '/minio': {
         target: 'http://127.0.0.1:9000',

@@ -1,15 +1,19 @@
 import { FC, useEffect, useState } from 'react'
-import { DEFAULT_VIDEO, imageOrDefault, videoOrDefault } from '../modules/media'
+import { DEFAULT_VIDEO, imageOrDefault, mediaCandidates } from '../modules/media'
 
 interface Props {
   src: string | null
   poster: string | null
 }
 
+// Видео города: сначала через proxy /minio, затем напрямую, затем видео по умолчанию
 export const CityVideo: FC<Props> = ({ src, poster }) => {
-  const [current, setCurrent] = useState(videoOrDefault(src))
+  const candidates = mediaCandidates(src, DEFAULT_VIDEO)
+  const [index, setIndex] = useState(0)
 
-  useEffect(() => setCurrent(videoOrDefault(src)), [src])
+  useEffect(() => setIndex(0), [src])
+
+  const current = candidates[Math.min(index, candidates.length - 1)]
 
   return (
     <video
@@ -20,7 +24,7 @@ export const CityVideo: FC<Props> = ({ src, poster }) => {
       loop
       muted
       playsInline
-      onError={() => current !== DEFAULT_VIDEO && setCurrent(DEFAULT_VIDEO)}
+      onError={() => setIndex((value) => Math.min(value + 1, candidates.length - 1))}
     />
   )
 }

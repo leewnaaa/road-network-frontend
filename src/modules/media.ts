@@ -16,5 +16,13 @@ export const toProxyUrl = (url: string): string => {
 export const imageOrDefault = (url: string | null | undefined): string => (url ? toProxyUrl(url) : DEFAULT_IMAGE)
 export const videoOrDefault = (url: string | null | undefined): string => (url ? toProxyUrl(url) : DEFAULT_VIDEO)
 
+// Варианты адреса по порядку: через proxy /minio, напрямую из MinIO, файл по умолчанию.
+// Компоненты CityImage/CityVideo переходят к следующему, если текущий не загрузился.
+export const mediaCandidates = (url: string | null | undefined, fallback: string): string[] => {
+  if (!url) return [fallback]
+  const proxied = toProxyUrl(url)
+  return [...new Set([proxied, url, fallback])]
+}
+
 export const formatCoords = (lat: number | null, lon: number | null): string =>
   lat === null || lon === null ? 'координаты не указаны' : `${lat.toFixed(4)}, ${lon.toFixed(4)}`
