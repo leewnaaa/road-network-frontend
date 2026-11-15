@@ -1,7 +1,8 @@
 import { ChangeEvent, FC, FormEvent, useEffect, useState } from 'react'
 import { Alert } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
-import { imageOrDefault, videoOrDefault } from '../modules/media'
+import { CityImage } from '../components/CityImage'
+import { CityVideo } from '../components/CityVideo'
 import { feedRoute } from '../Routes'
 import { createCityDraft, fetchCityDraft, publishCity } from '../slices/cityDraftSlice'
 import { useAppDispatch, useAppSelector } from '../store'
@@ -91,13 +92,13 @@ const AddCityPage: FC = () => {
           <div className="upload-section upload-section-row">
             <div className="upload-item">
               <div className="upload-preview">
-                <img src={imageOrDefault(draft.image_url)} alt={draft.name} />
+                <CityImage src={draft.image_url} alt={draft.name} />
               </div>
               <p className="upload-caption">{draft.image_url ? 'Фото' : 'Фото по умолчанию'}</p>
             </div>
             <div className="upload-item">
               <div className="upload-preview">
-                <video src={videoOrDefault(draft.video_url)} muted loop autoPlay playsInline />
+                <CityVideo src={draft.video_url} poster={draft.image_url} />
               </div>
               <p className="upload-caption">{draft.video_url ? 'Видео' : 'Видео по умолчанию'}</p>
             </div>
