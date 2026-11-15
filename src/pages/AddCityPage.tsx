@@ -1,12 +1,32 @@
-import { FC, FormEvent, useEffect, useState } from 'react'
-import { Alert, Button, Form } from 'react-bootstrap'
+import { ChangeEvent, FC, FormEvent, useEffect, useState } from 'react'
+import { Alert } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
-import { CityImage } from '../components/CityImage'
+import { imageOrDefault, videoOrDefault } from '../modules/media'
 import { feedRoute } from '../Routes'
 import { createCityDraft, fetchCityDraft, publishCity } from '../slices/cityDraftSlice'
 import { useAppDispatch, useAppSelector } from '../store'
 
-// Страница «Добавление»: шаг 1 — черновик (название, фото, видео), шаг 2 — публикация.
+// Локальный предпросмотр выбранного файла (blob-URL), освобождается при смене файла
+const useFilePreview = (file: File | null): string | null => {
+  const [url, setUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!file) {
+      setUrl(null)
+      return
+    }
+    const objectUrl = URL.createObjectURL(file)
+    setUrl(objectUrl)
+    return () => URL.revokeObjectURL(objectUrl)
+  }, [file])
+
+  return url
+}
+
+const pickFile = (event: ChangeEvent<HTMLInputElement>) => event.target.files?.[0] ?? null
+
+// Страница «Добавление» (вёрстка как add.html из ЛР1):
+// шаг 1 — фото, видео, название -> черновик; шаг 2 — описание и координаты -> публикация.
 const AddCityPage: FC = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
@@ -16,6 +36,8 @@ const AddCityPage: FC = () => {
   const [name, setName] = useState('')
   const [photo, setPhoto] = useState<File | null>(null)
   const [video, setVideo] = useState<File | null>(null)
+  const photoUrl = useFilePreview(photo)
+  const videoUrl = useFilePreview(video)
 
   const [description, setDescription] = useState('')
   const [lat, setLat] = useState('')
@@ -29,8 +51,8 @@ const AddCityPage: FC = () => {
 
   const handleCreate = (event: FormEvent) => {
     event.preventDefault()
-    if (!name.trim() || !photo || !video) {
-      setFormError('Укажите название, фото и видео')
+    if (!photo || !video || !name.trim()) {
+      setFormError('Выберите фото, видео и укажите название города')
       return
     }
     setFormError(null)
@@ -42,7 +64,7 @@ const AddCityPage: FC = () => {
     if (!draft) return
     const latNum = Number(lat.replace(',', '.'))
     const lonNum = Number(lon.replace(',', '.'))
-    if (!description.trim() || !lat || !lon || Number.isNaN(latNum) || Number.isNaN(lonNum)) {
+    if (!description.trim() || lat === '' || lon === '' || Number.isNaN(latNum) || Number.isNaN(lonNum)) {
       setFormError('Заполните описание и координаты')
       return
     }
@@ -53,76 +75,122 @@ const AddCityPage: FC = () => {
       ).unwrap()
       navigate(feedRoute(city.id))
     } catch {
-      // текст ошибки в state.cityDraft.error
+      // текст ошибки лежит в state.cityDraft.error
     }
   }
 
   const message = formError ?? error
 
-  return (
-    <div className="form-page">
-      <h1 className="page-title">Добавление города</h1>
-      <p className="page-hint">{draft ? 'Шаг 2 из 2: описание и координаты' : 'Шаг 1 из 2: название, фото и видео'}</p>
+  if (draft) {
+    return (
+      <div className="add-page">
+        <h1 className="add-title">{draft.name}</h1>
+        <p className="add-subtitle">Описание и координаты города</p>
 
-      {!draft ? (
-        <Form onSubmit={handleCreate} className="app-form">
-          <Form.Group controlId="city-name">
-            <Form.Label>Название</Form.Label>
-            <Form.Control value={name} onChange={(event) => setName(event.target.value)} placeholder="Ростов-на-Дону" />
-          </Form.Group>
-          <Form.Group controlId="city-photo">
-            <Form.Label>Фото (jpeg, png, webp до 5 МБ)</Form.Label>
-            <Form.Control
+        <form className="add-form" onSubmit={handlePublish}>
+          <div className="upload-section">
+            <div className="upload-item">
+              <div className="upload-preview">
+                <img src={imageOrDefault(draft.image_url)} alt={draft.name} />
+              </div>
+              <p className="upload-caption">Фото</p>
+            </div>
+            <div className="upload-item">
+              <div className="upload-preview">
+                <video src={videoOrDefault(draft.video_url)} muted loop autoPlay playsInline />
+              </div>
+              <p className="upload-caption">Видео</p>
+            </div>
+          </div>
+
+          <div className="form-grid">
+            <label>
+              Краткое описание
+              <textarea
+                rows={3}
+                maxLength={500}
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                required
+              />
+            </label>
+            <label>
+              Широта
+              <input type="number" step="any" min={-90} max={90} value={lat} onChange={(event) => setLat(event.target.value)} required />
+            </label>
+            <label>
+              Долгота
+              <input type="number" step="any" min={-180} max={180} value={lon} onChange={(event) => setLon(event.target.value)} required />
+            </label>
+          </div>
+
+          {message && <Alert variant="danger" className="add-error">{message}</Alert>}
+
+          <button type="submit" className="add-submit" disabled={pending}>
+            Опубликовать
+          </button>
+        </form>
+      </div>
+    )
+  }
+
+  return (
+    <div className="add-page">
+      <h1 className="add-title">Добавление города</h1>
+      <p className="add-subtitle">Название, фото и видео города</p>
+
+      <form className="add-form" onSubmit={handleCreate}>
+        <div className="upload-section">
+          <div className="upload-item">
+            <div className="upload-preview">
+              {photoUrl ? <img src={photoUrl} alt="Фото города" /> : <span className="upload-photo-stub">Фото</span>}
+            </div>
+            <label className={`upload-btn ${photo ? 'file-selected' : ''}`} htmlFor="photo-input">
+              {photo ? photo.name : '+ Фото'}
+            </label>
+            <input
+              id="photo-input"
               type="file"
               accept="image/jpeg,image/png,image/webp"
-              onChange={(event) => setPhoto((event.target as HTMLInputElement).files?.[0] ?? null)}
+              className="upload-input"
+              onChange={(event) => setPhoto(pickFile(event))}
             />
-          </Form.Group>
-          <Form.Group controlId="city-video">
-            <Form.Label>Видео (mp4, webm до 50 МБ)</Form.Label>
-            <Form.Control
+          </div>
+
+          <div className="upload-item">
+            <div className="upload-preview">
+              {videoUrl ? (
+                <video src={videoUrl} muted loop autoPlay playsInline />
+              ) : (
+                <span className="video-placeholder">Видео не выбрано</span>
+              )}
+            </div>
+            <label className={`upload-btn ${video ? 'file-selected' : ''}`} htmlFor="video-input">
+              {video ? video.name : '+ Видео'}
+            </label>
+            <input
+              id="video-input"
               type="file"
               accept="video/mp4,video/webm"
-              onChange={(event) => setVideo((event.target as HTMLInputElement).files?.[0] ?? null)}
+              className="upload-input"
+              onChange={(event) => setVideo(pickFile(event))}
             />
-          </Form.Group>
-          <Button type="submit" className="filter-apply-btn" disabled={pending}>
-            Далее
-          </Button>
-        </Form>
-      ) : (
-        <Form onSubmit={handlePublish} className="app-form">
-          <div className="draft-preview">
-            <CityImage src={draft.image_url} alt={draft.name} />
-            <strong>{draft.name}</strong>
           </div>
-          <Form.Group controlId="city-description">
-            <Form.Label>Описание</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={3}
-              maxLength={500}
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-            />
-          </Form.Group>
-          <div className="form-row-2">
-            <Form.Group controlId="city-lat">
-              <Form.Label>Широта</Form.Label>
-              <Form.Control inputMode="decimal" value={lat} onChange={(event) => setLat(event.target.value)} placeholder="47.2357" />
-            </Form.Group>
-            <Form.Group controlId="city-lon">
-              <Form.Label>Долгота</Form.Label>
-              <Form.Control inputMode="decimal" value={lon} onChange={(event) => setLon(event.target.value)} placeholder="39.7015" />
-            </Form.Group>
-          </div>
-          <Button type="submit" className="filter-apply-btn" disabled={pending}>
-            Опубликовать
-          </Button>
-        </Form>
-      )}
+        </div>
 
-      {message && <Alert variant="danger" className="form-error">{message}</Alert>}
+        <div className="form-grid">
+          <label>
+            Название города
+            <input type="text" value={name} onChange={(event) => setName(event.target.value)} required />
+          </label>
+        </div>
+
+        {message && <Alert variant="danger" className="add-error">{message}</Alert>}
+
+        <button type="submit" className="add-submit" disabled={pending}>
+          Далее
+        </button>
+      </form>
     </div>
   )
 }
