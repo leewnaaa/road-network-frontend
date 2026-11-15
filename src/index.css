@@ -611,6 +611,23 @@ p { margin-bottom: 0; }
 
 .upload-input { display: none; }
 
+/* Шаг 2: фото и видео черновика рядом, в две колонки */
+.upload-section-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.upload-section-row .upload-preview {
+  height: 112px;
+  border-radius: 12px;
+}
+
+.upload-section-row .upload-caption {
+  font-size: 13px;
+  padding: 0;
+}
+
 .form-grid {
   display: flex;
   flex-direction: column;
