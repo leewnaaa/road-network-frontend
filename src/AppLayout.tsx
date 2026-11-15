@@ -2,9 +2,9 @@ import { FC } from 'react'
 import { Outlet } from 'react-router-dom'
 import { AppHeader } from './components/AppHeader'
 import { BottomNav } from './components/BottomNav'
+import { LoadingOverlay } from './components/LoadingOverlay'
 
-// Оболочка приложения в виде экрана телефона (как в ЛР1). Состояние не хранит:
-// каждая страница сама загружает свои данные (Context и Redux не используются).
+// Оболочка приложения в виде экрана телефона (как в ЛР1). Данные страниц — в Redux.
 export const AppLayout: FC = () => (
   <div className="app-container">
     <AppHeader />
@@ -12,5 +12,6 @@ export const AppLayout: FC = () => (
       <Outlet />
     </main>
     <BottomNav />
+    <LoadingOverlay />
   </div>
 )

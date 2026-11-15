@@ -399,3 +399,123 @@ p { margin-bottom: 0; }
   padding: 5px 10px;
   border-radius: 14px;
 }
+
+/* ============================================
+   ЛР6: авторизация, добавление, удаление, загрузка
+   ============================================ */
+.main-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-user {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  opacity: .85;
+}
+
+/* Анимация загрузки: перекрывает экран и блокирует кнопки */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, .55);
+  backdrop-filter: blur(1px);
+  cursor: progress;
+}
+.loading-overlay .spinner-border { color: var(--accent); width: 42px; height: 42px; }
+.loading-text { font-size: 13px; font-weight: 700; color: var(--text); }
+
+/* «Выход» в нижней панели — кнопка, выглядит как ссылка */
+.bottom-nav button.bottom-nav-link {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+}
+
+/* Кнопка «Удалить» на карточке своего города */
+.card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.btn.delete-btn {
+  background: transparent;
+  color: #c62828;
+  border: 1px solid #c62828;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 14px;
+}
+.btn.delete-btn:hover,
+.btn.delete-btn:active { background: #c62828; color: #fff; border-color: #c62828; }
+
+.page-alert { margin: 0 18px 12px; font-size: 13px; padding: 8px 12px; }
+
+.feed-alert {
+  position: absolute;
+  top: 12px; left: 12px; right: 12px;
+  z-index: 5;
+  font-size: 13px;
+  padding: 8px 12px;
+}
+
+.action-circle.action-disabled { cursor: default; }
+.action-circle.action-disabled:hover { background: rgba(0,0,0,.45); transform: none; }
+
+/* Формы «Вход» и «Добавление» */
+.form-page { padding: 18px; }
+
+.page-hint {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 6px 0 16px;
+}
+
+.app-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.app-form .form-label {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.app-form .form-control {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  font-size: 13px;
+  background-color: #f9f9f9;
+  box-shadow: none;
+}
+.app-form .form-control:focus { border-color: var(--navy); background-color: #fff; box-shadow: none; }
+
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.form-error { margin-top: 12px; font-size: 13px; padding: 8px 12px; }
+
+.draft-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+}
+.draft-preview img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 10px;
+}

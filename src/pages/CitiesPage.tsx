@@ -1,31 +1,31 @@
-import { FC } from 'react'
-import { Spinner } from 'react-bootstrap'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { FC, useEffect } from 'react'
+import { Alert } from 'react-bootstrap'
+import { useNavigate } from 'react-router-dom'
 import { CityCard } from '../components/CityCard'
-import { CityFilter, LAT_MAX } from '../components/CityFilter'
-import { useCities } from '../hooks/useCities'
+import { CityFilter } from '../components/CityFilter'
 import { useDebounce } from '../hooks/useDebounce'
-import { CityFilters } from '../modules/types'
 import { feedRoute } from '../Routes'
-
-const DEFAULT_FILTERS: CityFilters = { latMax: LAT_MAX }
+import { deleteCity, fetchCities } from '../slices/citiesSlice'
+import { useAppDispatch, useAppSelector } from '../store'
 
 const CitiesPage: FC = () => {
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
 
-  const [params, setParams] = useSearchParams()
-  const filters: CityFilters = {
-    latMax: Number(params.get('lat_max') ?? DEFAULT_FILTERS.latMax),
-  }
+  const { list, filters, error } = useAppSelector((state) => state.cities)
+  const isAuthenticated = useAppSelector((state) => state.user.isAuthenticated)
 
-  const setFilters = (next: CityFilters) => {
-    const query: Record<string, string> = {}
-    if (next.latMax !== DEFAULT_FILTERS.latMax) query.lat_max = String(next.latMax)
-    setParams(query, { replace: true })
-  }
-
+  // Запрос уходит через 300 мс после остановки ползунка; фильтр берётся из Redux внутри thunk
   const debouncedLat = useDebounce(filters.latMax)
-  const { cities, loading } = useCities(debouncedLat)
+
+  useEffect(() => {
+    const request = dispatch(fetchCities())
+    return () => request.abort()
+  }, [dispatch, debouncedLat, isAuthenticated])
+
+  const handleDelete = (id: number) => {
+    dispatch(deleteCity(id))
+  }
 
   return (
     <div className="grid-page">
@@ -33,23 +33,25 @@ const CitiesPage: FC = () => {
         <h1 className="page-title">Города сети</h1>
       </div>
 
-      <CityFilter
-        value={filters}
-        onChange={setFilters}
-        onReset={() => setFilters(DEFAULT_FILTERS)}
-        found={cities.length}
-      />
+      <CityFilter found={list.length} />
 
-      {loading ? (
-        <div className="page-loader">
-          <Spinner animation="border" />
-        </div>
-      ) : cities.length === 0 ? (
+      {error && (
+        <Alert variant="danger" className="page-alert">
+          {error}
+        </Alert>
+      )}
+
+      {list.length === 0 ? (
         <p className="page-subtitle">По заданному фильтру городов не найдено.</p>
       ) : (
         <div className="grid-container">
-          {cities.map((city) => (
-            <CityCard key={city.id} city={city} onOpen={(id) => navigate(feedRoute(id))} />
+          {list.map((city) => (
+            <CityCard
+              key={city.id}
+              city={city}
+              onOpen={(id) => navigate(feedRoute(id))}
+              onDelete={isAuthenticated && city.is_mine === 1 ? handleDelete : undefined}
+            />
           ))}
         </div>
       )}

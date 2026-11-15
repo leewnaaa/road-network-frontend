@@ -1,53 +1,52 @@
 import { FC, useEffect, useState } from 'react'
-import { Spinner } from 'react-bootstrap'
+import { Alert } from 'react-bootstrap'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CityVideo } from '../components/CityVideo'
-import { getFeed } from '../modules/citiesApi'
 import { formatCoords } from '../modules/media'
-import { CityFeed } from '../modules/types'
 import { feedRoute } from '../Routes'
+import { fetchFeedCity, likeCity } from '../slices/feedSlice'
+import { useAppDispatch, useAppSelector } from '../store'
 
 const FeedPage: FC = () => {
   const [params] = useSearchParams()
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
+
   const idParam = params.get('city_id')
   const cityId = idParam ? Number(idParam) : undefined
 
-  const [city, setCity] = useState<CityFeed | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { current: city, error } = useAppSelector((state) => state.feed)
+  const isAuthenticated = useAppSelector((state) => state.user.isAuthenticated)
+  const pending = useAppSelector((state) => state.loading.pending > 0)
   const [expanded, setExpanded] = useState(false)
 
   useEffect(() => {
-    const controller = new AbortController()
-    setLoading(true)
     setExpanded(false)
-
-    getFeed(cityId, false, controller.signal)
-      .then((result) => {
-        setCity(result.data)
-        setLoading(false)
-      })
-      .catch(() => {})
-
-    return () => controller.abort()
-  }, [cityId])
+    const request = dispatch(fetchFeedCity({ cityId }))
+    return () => request.abort()
+  }, [dispatch, cityId, isAuthenticated])
 
   const handleNext = async () => {
     if (!city) return
-    const result = await getFeed(city.id, true)
-    if (result.data) navigate(feedRoute(result.data.id))
+    try {
+      const result = await dispatch(fetchFeedCity({ cityId: city.id, next: true })).unwrap()
+      if (result.data) navigate(feedRoute(result.data.id))
+    } catch {
+      // ошибка уже лежит в state.feed.error
+    }
   }
 
-  if (loading) {
-    return (
-      <div className="page-loader feed-loader">
-        <Spinner animation="border" variant="light" />
-      </div>
-    )
+  const handleLike = () => {
+    if (!city || !isAuthenticated) return
+    dispatch(likeCity({ cityId: city.id, like: city.liked_by_me ? 0 : 1 }))
   }
 
   if (!city) {
-    return <p className="page-subtitle">Опубликованных городов пока нет.</p>
+    return pending ? (
+      <div className="feed-page reels-player" />
+    ) : (
+      <p className="page-subtitle">{error ?? 'Опубликованных городов пока нет.'}</p>
+    )
   }
 
   return (
@@ -55,9 +54,23 @@ const FeedPage: FC = () => {
       <div className="reels-player">
         <CityVideo src={city.video_url} poster={city.image_url} />
 
+        {error && (
+          <Alert variant="danger" className="feed-alert">
+            {error}
+          </Alert>
+        )}
+
         <div className="reels-actions">
-          <div className="action-item" title="Войдите, чтобы ставить лайки">
-            <span className="action-circle">{city.liked_by_me ? '❤️' : '🤍'}</span>
+          <div className="action-item">
+            <button
+              type="button"
+              className={`action-circle ${isAuthenticated ? '' : 'action-disabled'}`}
+              onClick={handleLike}
+              disabled={!isAuthenticated}
+              title={isAuthenticated ? (city.liked_by_me ? 'Убрать лайк' : 'Поставить лайк') : 'Войдите, чтобы ставить лайки'}
+            >
+              {city.liked_by_me ? '❤️' : '🤍'}
+            </button>
             <span className="action-label">{city.likes_count}</span>
           </div>
           <div className="action-item">

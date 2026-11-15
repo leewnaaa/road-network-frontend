@@ -1,32 +1,34 @@
 import { FC } from 'react'
 import { Button, Form } from 'react-bootstrap'
-import { CityFilters } from '../modules/types'
-
-export const LAT_MIN = 40
-export const LAT_MAX = 70
+import { LAT_MAX, LAT_MIN, resetFilters, setLatMax } from '../slices/citiesSlice'
+import { useAppDispatch, useAppSelector } from '../store'
 
 interface Props {
-  value: CityFilters
-  onChange: (value: CityFilters) => void
-  onReset: () => void
   found: number
 }
 
-export const CityFilter: FC<Props> = ({ value, onChange, onReset, found }) => (
-  <Form className="filter-slider" onSubmit={(event) => event.preventDefault()}>
-    <Form.Label>
-      <span>Широта до: {value.latMax.toFixed(1)}°</span>
-      <span className="filter-found">найдено: {found}</span>
-    </Form.Label>
-    <Form.Range
-      min={LAT_MIN}
-      max={LAT_MAX}
-      step={0.5}
-      value={value.latMax}
-      onChange={(event) => onChange({ ...value, latMax: Number(event.target.value) })}
-    />
-    <Button className="filter-apply-btn" onClick={onReset}>
-      Сбросить фильтр
-    </Button>
-  </Form>
-)
+// Фильтр по широте. Значение хранится в Redux (citiesSlice.filters), поэтому
+// сохраняется при переходах между страницами и сбрасывается при выходе.
+export const CityFilter: FC<Props> = ({ found }) => {
+  const dispatch = useAppDispatch()
+  const latMax = useAppSelector((state) => state.cities.filters.latMax)
+
+  return (
+    <Form className="filter-slider" onSubmit={(event) => event.preventDefault()}>
+      <Form.Label>
+        <span>Широта до: {latMax.toFixed(1)}°</span>
+        <span className="filter-found">найдено: {found}</span>
+      </Form.Label>
+      <Form.Range
+        min={LAT_MIN}
+        max={LAT_MAX}
+        step={0.5}
+        value={latMax}
+        onChange={(event) => dispatch(setLatMax(Number(event.target.value)))}
+      />
+      <Button className="filter-apply-btn" onClick={() => dispatch(resetFilters())}>
+        Сбросить фильтр
+      </Button>
+    </Form>
+  )
+}

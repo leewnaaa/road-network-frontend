@@ -1,182 +1,177 @@
-# ДОРСЕТЬ — фронтенд (лабораторная 5)
+# ДОРСЕТЬ — фронтенд (лабораторная 6)
 
-SPA на **React + TypeScript + Vite** с компонентами **React-Bootstrap** для гостя. Тема — строительство дорожной сети, услуги — города с координатами.
+SPA на **React + TypeScript + Vite + React-Bootstrap** с менеджером состояний **Redux Toolkit**, запросами через **axios** и клиентом API, сгенерированным из **Swagger** бэкенда. Тема — строительство дорожной сети, услуги — города с координатами.
 
-В приложении 4 страницы по пунктам нижней панели; в ЛР5 для гостя реализованы две из них, повторяющие страницы ЛР1, — **Лента** и **Плитка**. Интерфейс сделан под экран телефона: в браузере на компьютере оно показывается «телефоном» шириной 390px со скруглёнными углами по центру страницы. Дизайн (цвета, шапка, нижняя панель, лента, карточки, фильтр) перенесён из ЛР1 — `static/css/style.css` бэкенда — в `src/index.css` и наложен на компоненты React-Bootstrap через `className`.
+Бэкенд: [road-network-backend](https://github.com/leewnaaa/road-network-backend) (FastAPI, ветка `feature/frontend-codegen`).
 
-Бэкенд: [road-network-backend](https://github.com/leewnaaa/road-network-backend) (FastAPI).
+## Что добавлено в ЛР6
+
+| Требование | Где сделано |
+|---|---|
+| Redux Toolkit: фильтр услуг в store | `src/slices/citiesSlice.ts` (`filters.latMax`), `src/components/CityFilter.tsx` |
+| Данные карточек с бэкенда, фильтр в запросе | thunk `fetchCities` → `GET /api/cities?lat_max=` |
+| Mock-объекты при недоступном бэкенде (только гость) | `fetchCities`, `fetchFeedCity` → `src/modules/mockQueries.ts` |
+| Кодогенерация из Swagger, axios | `scripts/generate-api.mjs`, `src/api/Api.ts`, `src/api/index.ts` |
+| redux-thunk для методов домена услуг | `src/slices/citiesSlice.ts`, `feedSlice.ts`, `cityDraftSlice.ts` |
+| Анимация загрузки, блокирующая кнопки | `src/slices/loadingSlice.ts` + `src/components/LoadingOverlay.tsx` |
+| Страница авторизации | `src/pages/LoginPage.tsx` (`/login`) |
+| Вход/выход только через axios, состояние в Redux вручную | `src/modules/authApi.ts`, `src/slices/userSlice.ts` (`loginSuccess`, `logout`) |
+| Вход ↔ Выход в меню, сброс фильтра при выходе | `src/components/BottomNav.tsx`, `citiesSlice` → `addCase(logout)` |
+| Страница добавления услуги | `src/pages/AddCityPage.tsx` (`/cities/add`) |
+| Кнопки удаления и лайков | «Удалить» на карточке своего города (`is_mine = 1`), ❤️ в ленте |
+| CORS: proxy Vite, второй маршрут для S3 | `vite.config.ts`: `/api` → `:8000`, `/minio` → `:9000` |
 
 ## Запуск
 
 ```bash
+# бэкенд (в road-network-backend, ветка feature/frontend-codegen)
+docker compose up -d
+alembic upgrade head
+python main.py               # http://127.0.0.1:8000/docs
+
+# фронтенд
 npm install
-npm run dev      # http://localhost:3000
-npm run build    # production-сборка в dist/
+npm run generate-api         # перегенерировать src/api/Api.ts из http://127.0.0.1:8000/openapi.json
+npm run dev                  # http://localhost:3000
 ```
 
-Бэкенд не нужен. В лабораторной 5 все данные берутся из коллекции mock-объектов `src/modules/mock.ts`, запросов к API нет. Во вкладке **Network** видны только загрузка страницы и медиафайлы из `public/`.
+Без запущенного бэкенда фронтенд тоже работает: гость видит ленту и плитку из коллекции mock-объектов.
 
-Для подключения к бэкенду (ЛР6) запустите фронтенд с переменной `VITE_USE_MOCK=false` (например, в файле `.env.local`). Тогда запросы `/api/...` пойдут через proxy Vite на `http://127.0.0.1:8000` (см. `vite.config.ts`).
+## Проксирование (CORS)
 
-## Общие элементы
+Браузер ходит только на `http://localhost:3000`, Vite пересылает запросы дальше:
 
-| Элемент | Как выглядит | Что делает |
+| Маршрут фронтенда | Куда уходит | Для чего |
 |---|---|---|
-| Шапка **ДОРСЕТЬ** | чёрная полоса, белый логотип | клик по логотипу открывает ленту |
-| Нижняя панель | белая, 4 текстовых пункта: **Лента**, **Добавление**, **Плитка**, **Вход** | переключает страницы |
-| Активный пункт | чёрный текст с оранжевым подчёркиванием | показывает текущую страницу |
-| «Добавление» и «Вход» | светло-серый текст, не нажимаются | гостю недоступны, появятся после авторизации |
+| `/api/...` | `http://127.0.0.1:8000/api/...` | REST API FastAPI |
+| `/minio/cities/<файл>` | `http://127.0.0.1:9000/cities/<файл>` | фото и видео из MinIO (S3) |
+
+Бэкенд отдаёт ссылки вида `http://localhost:9000/cities/<uuid>.jpg`; функция `toProxyUrl` (`src/modules/media.ts`) превращает их в `/minio/cities/<uuid>.jpg`. Во вкладке **Network** видны запросы `/api/cities?lat_max=...` и `/minio/cities/...`.
+
+Сессионная кука `session_id` (HttpOnly) ставится на `localhost:3000`, поэтому браузер сам отправляет её во все запросы `/api`.
+
+## Кодогенерация
+
+`scripts/generate-api.mjs` запускает `swagger-typescript-api` с `httpClientType: 'axios'` и `moduleNameIndex: 1`. В бэкенде `operationId` равен имени функции-обработчика (`generate_unique_id_function=lambda route: route.name` в `main.py`), поэтому методы названы по теме:
+
+| Метод клиента | Запрос | Thunk |
+|---|---|---|
+| `api.cities.listCities({ lat_max })` | `GET /api/cities` | `fetchCities` |
+| `api.cities.feedFirst()` | `GET /api/cities/feed` | `fetchFeedCity` |
+| `api.cities.feedById(id, { next })` | `GET /api/cities/feed/{id}` | `fetchFeedCity` |
+| `api.cities.likeCity(id, { like })` | `POST /api/cities/{id}/like` | `likeCity` |
+| `api.cities.deleteCity(id)` | `DELETE /api/cities/{id}` | `deleteCity` |
+| `api.cities.getDraft()` | `GET /api/cities/draft` | `fetchCityDraft` |
+| `api.cities.createCity({ name, photo, video })` | `POST /api/cities` (multipart) | `createCityDraft` |
+| `api.cities.publishCity(id, data)` | `PUT /api/cities/{id}/publish` | `publishCity` |
+
+Авторизация — без кодогенерации и thunk (`src/modules/authApi.ts`, свой экземпляр axios):
+
+| Функция | Запрос | Что делает компонент |
+|---|---|---|
+| `loginRequest` | `POST /api/users/login` | `dispatch(loginSuccess(user))` |
+| `registerRequest` | `POST /api/users` | затем `loginRequest` |
+| `logoutRequest` | `POST /api/users/logout` | `dispatch(logout())` |
+
+## Состояние Redux
+
+```
+store
+├── cities     { filters: { latMax }, list: City[], source: 'api'|'mock', error }
+├── feed       { current: CityFeed|null, source, error }
+├── cityDraft  { draft: CityOut|null, error }
+├── user       { isAuthenticated, id, username }
+└── loading    { pending }   // число выполняющихся thunk
+```
+
+| Слайс | reducers (синхронные) | thunk (extraReducers) |
+|---|---|---|
+| `cities` | `setLatMax`, `resetFilters` | `fetchCities`, `deleteCity`; реагирует на `likeCity.fulfilled` и `logout` (сброс фильтра) |
+| `feed` | — | `fetchFeedCity`, `likeCity`; на `logout` снимает «мой лайк» |
+| `cityDraft` | `clearDraftError` | `fetchCityDraft`, `createCityDraft`, `publishCity`; на `logout` очищается |
+| `user` | `loginSuccess`, `logout` | — (вход/выход только axios) |
+| `loading` | — | `addMatcher(isPending())` +1, `addMatcher(isAnyOf(isFulfilled(), isRejected()))` −1 |
+
+`user` не сохраняется в localStorage: после **F5** интерфейс снова гостевой, а кука `session_id` остаётся во вкладке **Application → Cookies**. С ней в Insomnia/Postman `GET /api/cities` возвращает `is_mine: 1` у своих городов — это признак для кнопки удаления.
+
+Для отладки подходит расширение браузера **Redux DevTools** — `configureStore` подключает его автоматически.
 
 ## Страницы
 
-В приложении 4 страницы — по числу пунктов нижней панели: **Лента**, **Добавление**, **Плитка**, **Вход**. В ЛР5 для гостя реализованы «Лента» и «Плитка». «Добавление» и «Вход» в панели показаны, но недоступны (серые, не нажимаются); их поля и кнопки ниже описаны по ТЗ (п. 4.3 и 4.6), реализация — в следующих лабораторных после подключения бэкенда и авторизации.
-
-| № | Пункт панели | Адрес | Кому доступна | Статус в ЛР5 |
+| № | Пункт меню | Адрес | Гость | Пользователь |
 |---|---|---|---|---|
-| 1 | Лента | `/`, `/?city_id=<id>` | гость и создатель | реализована |
-| 2 | Добавление | `/cities/add` | создатель | неактивный пункт панели |
-| 3 | Плитка | `/cities` | гость и создатель | реализована |
-| 4 | Вход | `/login` | гость | неактивный пункт панели |
+| 1 | Лента | `/`, `/?city_id=<id>` | просмотр, «Дальше» | + лайк ❤️ / снятие лайка |
+| 2 | Добавление | `/cities/add` | недоступна (→ `/login`) | шаг 1: название, фото, видео → черновик; шаг 2: описание, координаты → публикация |
+| 3 | Плитка | `/cities` | список с фильтром по широте | + «Удалить» на своих карточках |
+| 4 | Вход / Выход | `/login` | форма входа и регистрации | в меню «Выход»: сброс состояния и фильтра |
 
-Пока страницы 2 и 4 не сделаны, их адреса перенаправляют на ленту.
+В шапке справа — «Гость» или логин пользователя.
 
-### 1. Лента — `/` и `/?city_id=<id>` (реализована)
+## Диаграмма прецедентов
 
-Полноэкранное видео города в стиле reels. Без параметра показывается самый новый город (по дате публикации), с `?city_id=` — указанный.
+```plantuml
+@startuml
+left to right direction
+actor Гость
+actor Пользователь
+Пользователь -|> Гость
 
-| Элемент | Как выглядит | Что делает |
-|---|---|---|
-| Видео на фоне | на весь экран, играет без звука по кругу | видео города; если поле `video_url` пустое или файл не загрузился — видео по умолчанию `public/DefaultVideo.mp4`, пока грузится — фото города (`poster`) |
-| Лайки | полупрозрачный круг 🤍 справа, под ним число | показывает количество лайков; гость поставить лайк не может |
-| Кнопка **→ Дальше** | полупрозрачный круг со стрелкой справа, при наведении становится оранжевым | открывает следующий город по порядку публикации; после последнего — снова первый |
-| Название | крупный белый жирный текст внизу на затемнении | название города |
-| 📍 Координаты | белый текст под названием | широта и долгота |
-| Описание | две строки белого текста | описание города |
-| **Ещё... / Свернуть** | оранжевая надпись под описанием (только у длинных описаний) | раскрывает и сворачивает описание целиком |
+rectangle "SPA ДОРСЕТЬ (React)" {
+  usecase "Смотреть ленту городов" as UC1
+  usecase "Листать ленту «Дальше»" as UC2
+  usecase "Смотреть плитку городов" as UC3
+  usecase "Фильтровать по широте" as UC4
+  usecase "Войти / зарегистрироваться" as UC5
+  usecase "Ставить и снимать лайк" as UC6
+  usecase "Добавить город (черновик)" as UC7
+  usecase "Опубликовать город" as UC8
+  usecase "Удалить свой город" as UC9
+  usecase "Выйти" as UC10
+}
 
-### 2. Добавление — `/cities/add` (для создателя, в ЛР5 неактивна)
+Гость --> UC1
+Гость --> UC2
+Гость --> UC3
+Гость --> UC4
+Гость --> UC5
+Пользователь --> UC6
+Пользователь --> UC7
+Пользователь --> UC9
+Пользователь --> UC10
+UC7 <.. UC8 : <<extend>>
+@enduml
+```
 
-Создатель добавляет новый город в два шага. Гостя при выборе пункта «Добавление» приложение отправит на страницу «Вход».
+## Порядок показа (скриншоты)
 
-| Элемент | Как будет выглядеть | Что делает |
-|---|---|---|
-| Загрузка черновика | при открытии страницы | вызывает `GET /api/cities/draft`; ответ 404 — черновика нет, форма пустая |
-| **Шаг 1.** Поле **«Название»** | текстовое поле | название города |
-| Поле **«Фото»** | выбор файла | фото города: jpeg, png или webp до 5 МБ |
-| Поле **«Видео»** | выбор файла | видео города: mp4 или webm до 50 МБ; файлы можно выбрать только до нажатия «Далее» |
-| Кнопка **Далее** | оранжевая кнопка на всю ширину | создаёт черновик: `POST /api/cities` с названием, фото и видео |
-| **Шаг 2.** Поле **«Описание»** | многострочное поле | описание города |
-| Поля **«Широта»** и **«Долгота»** | числовые поля | координаты города |
-| Кнопка **Опубликовать** | оранжевая кнопка на всю ширину | публикует черновик: `PUT /api/cities/{city_id}/publish` с описанием и координатами; после этого город появляется в ленте и на плитке |
-
-У пользователя может быть не больше одного черновика.
-
-### 3. Плитка — `/cities` (реализована)
-
-Опубликованные города в 2 колонки, по алфавиту, с фильтром по широте.
-
-| Элемент | Как выглядит | Что делает |
-|---|---|---|
-| Заголовок **«Города сети»** | крупный чёрный жирный текст | — |
-| Блок фильтра | серый блок со скруглёнными углами | — |
-| **«Широта до: N°»** | жирная подпись слева над ползунком | текущее значение фильтра |
-| **«найдено: N»** | серая подпись справа над ползунком | сколько городов осталось после фильтрации |
-| Ползунок широты (40–70°) | оранжевый ползунок | оставляет города, у которых широта не больше выбранной (как параметр `lat_max` бэкенда); список обновляется через 300 мс после остановки ползунка |
-| Кнопка **Сбросить фильтр** | оранжевая кнопка на всю ширину блока, при наведении темнеет | возвращает широту 70° — показываются все города |
-| Карточка города | белая карточка с рамкой и скруглёнными углами, при наведении приподнимается | клик по любой части карточки открывает ленту на этом городе (`/?city_id=<id>`) |
-| Фото на карточке | вверху карточки | фото города; если поле `image_url` пустое или файл не загрузился — `public/DefaultImage.jpg` (дорожная техника с надписью «Дорога ещё строится…») |
-| Название, 📍 координаты | чёрный жирный текст | данные города |
-| ❤️ Лайки | оранжевое число | количество лайков |
-| **Подробнее** | чёрная скруглённая плашка | то же, что клик по карточке — открывает ленту на этом городе |
-
-Значение фильтра хранится в адресной строке (`/cities?lat_max=56`), поэтому сохраняется при возврате из ленты и при обновлении страницы.
-
-### 4. Вход — `/login` (для гостя, в ЛР5 неактивна)
-
-Форма входа и регистрации.
-
-| Элемент | Как будет выглядеть | Что делает |
-|---|---|---|
-| Поле **«Логин»** | текстовое поле | логин пользователя |
-| Поле **«Пароль»** | поле пароля (символы скрыты) | пароль |
-| Кнопка **Войти** | оранжевая кнопка на всю ширину | `POST /api/users/login`; при успехе открывается лента уже в интерфейсе создателя |
-| Кнопка **Зарегистрироваться** | кнопка с оранжевой рамкой | `POST /api/users`, затем вход через `POST /api/users/login` |
-| Сообщение об ошибке | красный текст под формой | при ответе 401 — «Неверный логин или пароль», при 409 — «Логин уже занят» |
-
-После входа в нижней панели вместо «Вход» появится «Выход» (`POST /api/users/logout`), а пункт «Добавление» станет активным.
-
-## Mock-данные
-
-В `src/modules/mock.ts` — 10 опубликованных городов. У четырёх есть свои фото и видео в `public/mock/`, у остальных поля пустые, и для них показываются файлы по умолчанию.
-
-| Город | Фото | Видео |
-|---|---|---|
-| Москва | `moscow.jpg` | `moscow.mp4` |
-| Нижний Новгород | `nn.jpg` | `nn.MP4` |
-| Владимир | `vladimir.webp` | `vladimir.MP4` |
-| Новосибирск | `nsk.jpg` | по умолчанию |
-| Тверь, Санкт-Петербург, Казань, Воронеж, Ростов-на-Дону, Краснодар | по умолчанию | по умолчанию |
+1–2. Бэкенд остановлен → Лента и Плитка с mock-данными (в Network запрос `/api/...` с ошибкой 500 от proxy).
+3–6. Бэкенд запущен → 4 страницы: Лента, Плитка, Вход, Добавление.
+7–8. Изменить запись в БД (Adminer `http://localhost:8081`, таблица `cities`) → обновить Плитку.
+9. Войти → F5 → в Redux DevTools `user.isAuthenticated: false`, во вкладке Application кука `session_id` осталась.
+10. Скопировать `session_id` в Insomnia/Postman → `GET http://127.0.0.1:8000/api/cities` с кукой → `is_mine: 1`.
+11–12. Состояния Redux — `src/store.ts`, `src/slices/*`; axios в кодогенерации — `src/api/Api.ts` (`HttpClient`, `axios.create`).
+13–14. Сгенерированные методы в thunk — `fetchCities` → `api.cities.listCities`, `likeCity` → `api.cities.likeCity` и т.д.
+15–16. Network: `/api/cities?lat_max=55` через proxy, `/minio/cities/<uuid>.jpg` — имена файлов из MinIO.
 
 ## Структура
 
 ```
-public/
-  DefaultImage.jpg, DefaultVideo.mp4   изображение и видео по умолчанию
-  mock/                                фото и видео mock-городов
+scripts/generate-api.mjs        кодогенерация клиента из Swagger
 src/
-  main.tsx              точка входа, подключение bootstrap.css и index.css
-  App.tsx               роутинг (react-router-dom)
-  AppLayout.tsx         оболочка: шапка + <Outlet/> + нижняя панель
-  Routes.ts             адреса страниц и подписи пунктов меню
-  index.css             дизайн из ЛР1 поверх React-Bootstrap
-  components/
-    AppHeader.tsx       шапка
-    BottomNav.tsx       нижняя панель из 4 пунктов (Nav)
-    CityCard.tsx        карточка города (Card)
-    CityFilter.tsx      фильтр по широте (Form, Form.Label, Form.Range, Button)
-    CityImage.tsx       <img> с подменой на изображение по умолчанию
-    CityVideo.tsx       <video> с подменой на видео по умолчанию
-  hooks/
-    useCities.ts        загрузка списка городов с фильтром по широте
-    useDebounce.ts      задержка значения ползунка
+  main.tsx                      Provider store
+  store.ts                      configureStore, RootState, useAppDispatch/useAppSelector
+  App.tsx                       роутинг, доступ к «Добавлению» и «Входу»
+  AppLayout.tsx                 шапка + страница + меню + анимация загрузки
+  api/Api.ts                    сгенерированный клиент (axios)
+  api/index.ts                  экземпляр api
+  slices/                       citiesSlice, feedSlice, cityDraftSlice, userSlice, loadingSlice
+  components/                   AppHeader, BottomNav, CityCard, CityFilter, CityImage, CityVideo, LoadingOverlay
+  pages/                        FeedPage, CitiesPage, AddCityPage, LoginPage
   modules/
-    types.ts            типы City, CityFeed, CityFilters
-    mock.ts             коллекция mock-объектов (10 городов)
-    citiesApi.ts        получение данных: mock (ЛР5) или API при VITE_USE_MOCK=false
-    media.ts            файлы по умолчанию, форматирование координат
-  pages/
-    FeedPage.tsx        лента
-    CitiesPage.tsx      плитка
+    authApi.ts                  вход/регистрация/выход через axios
+    errors.ts                   разбор ошибок axios, «бэкенд недоступен»
+    media.ts                    файлы по умолчанию, переписывание ссылок MinIO на /minio
+    mock.ts, mockQueries.ts     коллекция mock-объектов и запросы к ней
+    types.ts                    City, CityFeed (на основе сгенерированных типов)
+  hooks/useDebounce.ts          задержка запроса при движении ползунка
 ```
-
-## Компоненты и props
-
-| Компонент | Props | Назначение |
-|---|---|---|
-| `CityFilter` | `value`, `onChange`, `onReset`, `found` | управляемый фильтр: своего состояния нет, значение хранит `CitiesPage` |
-| `CityCard` | `city`, `onOpen` | карточка; по клику вызывает `onOpen(city.id)` |
-| `CityImage` | `src`, `alt`, `className` | фото с заменой на изображение по умолчанию |
-| `CityVideo` | `src`, `poster` | видео с заменой на видео по умолчанию |
-
-## Используемые хуки
-
-| Хук | Где | Зачем |
-|---|---|---|
-| `useState` | `FeedPage`, `CityImage`, `CityVideo`, `useCities`, `useDebounce` | данные города и списка, загрузка, раскрытие описания, текущий файл медиа |
-| `useEffect` | `FeedPage`, `useCities`, `useDebounce`, `CityImage`, `CityVideo` | загрузка данных при монтировании и смене `city_id` или фильтра; в cleanup — отмена запроса (`AbortController`) и таймера |
-| `useNavigate` | `FeedPage`, `CitiesPage` | переход к следующему городу и с карточки в ленту |
-| `useSearchParams` | `FeedPage`, `CitiesPage` | `city_id` ленты и значение фильтра в адресной строке |
-| `useLocation` | `BottomNav` | подсветка активного пункта меню |
-| `useCities` (свой) | `CitiesPage` | загрузка списка городов с `lat_max` |
-| `useDebounce` (свой) | `CitiesPage` | не обновлять список на каждый шаг ползунка |
-
-Context и Redux не используются: состояние живёт в страницах и передаётся дочерним компонентам через props.
-
-## Методы API (при `VITE_USE_MOCK=false`)
-
-| Метод | URL | Где |
-|---|---|---|
-| GET | `/api/cities?lat_max=` | Плитка |
-| GET | `/api/cities/feed` | Лента без параметра |
-| GET | `/api/cities/feed/{id}` | Лента с `city_id` (переход с карточки) |
-| GET | `/api/cities/feed/{id}?next=true` | кнопка «Дальше» |
