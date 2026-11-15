@@ -72,8 +72,9 @@ const cityDraftSlice = createSlice({
       .addCase(fetchCityDraft.fulfilled, (state, action) => {
         state.draft = action.payload
       })
-      .addCase(fetchCityDraft.rejected, (state, action) => {
-        state.error = action.payload ?? 'Не удалось загрузить черновик'
+      // ошибку загрузки черновика не показываем: страница просто открывается на шаге 1
+      .addCase(fetchCityDraft.rejected, (state) => {
+        state.draft = null
       })
       .addCase(createCityDraft.pending, (state) => {
         state.error = null
@@ -82,6 +83,7 @@ const cityDraftSlice = createSlice({
         state.draft = action.payload
       })
       .addCase(createCityDraft.rejected, (state, action) => {
+        if (action.meta.aborted) return
         state.error = action.payload ?? 'Не удалось создать черновик'
       })
       .addCase(publishCity.pending, (state) => {
@@ -91,6 +93,7 @@ const cityDraftSlice = createSlice({
         state.draft = null
       })
       .addCase(publishCity.rejected, (state, action) => {
+        if (action.meta.aborted) return
         state.error = action.payload ?? 'Не удалось опубликовать город'
       })
       .addCase(logout, () => initialState)
