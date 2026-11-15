@@ -3,6 +3,7 @@ import { Alert } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
 import { CityImage } from '../components/CityImage'
 import { CityVideo } from '../components/CityVideo'
+import { DEFAULT_IMAGE, DEFAULT_VIDEO } from '../modules/media'
 import { feedRoute } from '../Routes'
 import { createCityDraft, fetchCityDraft, publishCity } from '../slices/cityDraftSlice'
 import { useAppDispatch, useAppSelector } from '../store'
@@ -143,9 +144,10 @@ const AddCityPage: FC = () => {
       <form className="add-form" onSubmit={handleCreate}>
         <div className="upload-section">
           <div className="upload-item">
-            <div className="upload-preview">
-              {photoUrl ? <img src={photoUrl} alt="Фото города" /> : <span className="upload-photo-stub">Фото</span>}
-            </div>
+            <span className="upload-label">Фото</span>
+            <label className="upload-preview upload-preview-click" htmlFor="photo-input" title="Выбрать фото">
+              <img src={photoUrl ?? DEFAULT_IMAGE} alt="Фото города" />
+            </label>
             <label className={`upload-btn ${photo ? 'file-selected' : ''}`} htmlFor="photo-input">
               {photo ? photo.name : '+ Фото'}
             </label>
@@ -159,13 +161,10 @@ const AddCityPage: FC = () => {
           </div>
 
           <div className="upload-item">
-            <div className="upload-preview">
-              {videoUrl ? (
-                <video src={videoUrl} muted loop autoPlay playsInline />
-              ) : (
-                <span className="video-placeholder">Видео не выбрано</span>
-              )}
-            </div>
+            <span className="upload-label">Видео</span>
+            <label className="upload-preview upload-preview-click" htmlFor="video-input" title="Выбрать видео">
+              <video key={videoUrl ?? DEFAULT_VIDEO} src={videoUrl ?? DEFAULT_VIDEO} muted loop autoPlay playsInline />
+            </label>
             <label className={`upload-btn ${video ? 'file-selected' : ''}`} htmlFor="video-input">
               {video ? video.name : '+ Видео'}
             </label>
