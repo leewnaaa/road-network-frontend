@@ -613,30 +613,17 @@ p { margin-bottom: 0; }
   margin-bottom: -2px;
 }
 
-.upload-preview-click {
+.upload-preview-click,
+.upload-preview-tall {
   height: 150px;
-  cursor: pointer;
   margin: 0;
+}
+
+.upload-preview-click {
+  cursor: pointer;
   transition: border-color .15s;
 }
 .upload-preview-click:hover { border-color: var(--navy); }
-
-/* Шаг 2: фото и видео черновика рядом, в две колонки */
-.upload-section-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.upload-section-row .upload-preview {
-  height: 112px;
-  border-radius: 12px;
-}
-
-.upload-section-row .upload-caption {
-  font-size: 13px;
-  padding: 0;
-}
 
 .form-grid {
   display: flex;

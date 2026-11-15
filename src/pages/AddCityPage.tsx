@@ -90,18 +90,18 @@ const AddCityPage: FC = () => {
         <p className="add-subtitle">Описание и координаты города</p>
 
         <form className="add-form" onSubmit={handlePublish}>
-          <div className="upload-section upload-section-row">
+          <div className="upload-section">
             <div className="upload-item">
-              <div className="upload-preview">
+              <span className="upload-label">{draft.image_url ? 'Фото' : 'Фото по умолчанию'}</span>
+              <div className="upload-preview upload-preview-tall">
                 <CityImage src={draft.image_url} alt={draft.name} />
               </div>
-              <p className="upload-caption">{draft.image_url ? 'Фото' : 'Фото по умолчанию'}</p>
             </div>
             <div className="upload-item">
-              <div className="upload-preview">
+              <span className="upload-label">{draft.video_url ? 'Видео' : 'Видео по умолчанию'}</span>
+              <div className="upload-preview upload-preview-tall">
                 <CityVideo src={draft.video_url} poster={draft.image_url} />
               </div>
-              <p className="upload-caption">{draft.video_url ? 'Видео' : 'Видео по умолчанию'}</p>
             </div>
           </div>
 
