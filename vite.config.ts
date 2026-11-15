@@ -6,12 +6,17 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
-    // Запросы /api/* проксируются на FastAPI-бэкенд (решение проблемы CORS).
-    // Если бэкенд не запущен, фронтенд берёт данные из mock-объектов.
     proxy: {
+      // 1-й маршрут: REST API FastAPI (решение проблемы CORS обратным прокси)
       '/api': {
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
+      },
+      // 2-й маршрут: файлы из MinIO (S3). /minio/cities/<файл> -> http://127.0.0.1:9000/cities/<файл>
+      '/minio': {
+        target: 'http://127.0.0.1:9000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/minio/, ''),
       },
     },
   },
