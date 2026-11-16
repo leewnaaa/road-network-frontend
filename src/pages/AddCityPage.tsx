@@ -92,13 +92,13 @@ const AddCityPage: FC = () => {
         <form className="add-form" onSubmit={handlePublish}>
           <div className="upload-section">
             <div className="upload-item">
-              <span className="upload-label">{draft.image_url ? 'Фото' : 'Фото по умолчанию'}</span>
+              <span className="upload-label">Фото</span>
               <div className="upload-preview upload-preview-tall">
                 <CityImage src={draft.image_url} alt={draft.name} />
               </div>
             </div>
             <div className="upload-item">
-              <span className="upload-label">{draft.video_url ? 'Видео' : 'Видео по умолчанию'}</span>
+              <span className="upload-label">Видео</span>
               <div className="upload-preview upload-preview-tall">
                 <CityVideo src={draft.video_url} poster={draft.image_url} />
               </div>
