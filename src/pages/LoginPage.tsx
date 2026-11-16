@@ -2,13 +2,13 @@ import { FC, FormEvent, useState } from 'react'
 import { Alert, Button, Form, Spinner } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { loginRequest } from '../modules/authApi'
+import type { UserOut } from '../api/Api'
 import { errorMessage } from '../modules/errors'
 import { ROUTES } from '../Routes'
 import { loginSuccess } from '../slices/userSlice'
 import { useAppDispatch } from '../store'
 
-// Авторизация: запросы через axios (без thunk и кодогенерации),
+// Авторизация: запрос через axios прямо в обработчике кнопки «Войти» (без thunk и кодогенерации),
 // ответ вручную передаётся в Redux действием loginSuccess.
 const LoginPage: FC = () => {
   const dispatch = useAppDispatch()
@@ -33,8 +33,10 @@ const LoginPage: FC = () => {
     setSubmitting(true)
     setError(null)
     try {
-      const user = await loginRequest(username, password)
-      dispatch(loginSuccess(user))
+      // AJAX-запрос авторизации: бэкенд проверяет пароль и ставит HttpOnly-куку session_id
+      const { data } = await axios.post<UserOut>('/api/users/login', { username, password })
+      // состояние интерфейса после авторизации вручную передаём в Redux
+      dispatch(loginSuccess(data))
       navigate(ROUTES.FEED)
     } catch (err) {
       setError(authMessage(err))

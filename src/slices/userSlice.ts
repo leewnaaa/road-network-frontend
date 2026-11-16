@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { UserOut } from '../api/Api'
 
 // Состояние интерфейса после авторизации. Заполняется вручную из компонента
-// после axios-запроса (без thunk и кодогенерации), см. modules/authApi.ts.
+// после axios-запроса (без thunk и кодогенерации): LoginPage и BottomNav.
 // В localStorage не сохраняется: после F5 приложение снова в состоянии гостя,
 // а сессионная кука session_id остаётся в браузере (вкладка Application).
 interface UserState {

@@ -1,7 +1,7 @@
 import { FC, useState } from 'react'
 import { Nav } from 'react-bootstrap'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { logoutRequest } from '../modules/authApi'
+import axios from 'axios'
 import { ROUTES, ROUTE_LABELS, RouteKey } from '../Routes'
 import { logout } from '../slices/userSlice'
 import { useAppDispatch, useAppSelector } from '../store'
@@ -20,7 +20,8 @@ export const BottomNav: FC = () => {
   const handleLogout = async () => {
     setLeaving(true)
     try {
-      await logoutRequest()
+      // AJAX-запрос деавторизации: бэкенд удаляет сессию и куку session_id
+      await axios.post('/api/users/logout')
     } catch {
       // сессия уже истекла или сервер недоступен — интерфейс всё равно возвращаем в состояние гостя
     }

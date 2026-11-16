@@ -15,7 +15,7 @@ SPA на **React + TypeScript + Vite + React-Bootstrap** с менеджером
 | redux-thunk для методов домена услуг | `src/slices/citiesSlice.ts`, `feedSlice.ts`, `cityDraftSlice.ts` |
 | Анимация загрузки, блокирующая кнопки | `src/slices/loadingSlice.ts` + `src/components/LoadingOverlay.tsx` |
 | Страница авторизации | `src/pages/LoginPage.tsx` (`/login`) |
-| Вход/выход только через axios, состояние в Redux вручную | `src/modules/authApi.ts`, `src/slices/userSlice.ts` (`loginSuccess`, `logout`) |
+| Вход/выход только через axios, состояние в Redux вручную | `src/pages/LoginPage.tsx`, `src/components/BottomNav.tsx`, `src/slices/userSlice.ts` (`loginSuccess`, `logout`) |
 | Вход ↔ Выход в меню, сброс фильтра при выходе | `src/components/BottomNav.tsx`, `citiesSlice` → `addCase(logout)` |
 | Страница добавления услуги | `src/pages/AddCityPage.tsx` (`/cities/add`) |
 | Кнопки удаления и лайков | «Удалить» на карточке своего города (`is_mine = 1`), ❤️ в ленте |
@@ -65,12 +65,12 @@ npm run dev                  # http://localhost:3000
 | `api.cities.createCity({ name, photo, video })` | `POST /api/cities` (multipart) | `createCityDraft` |
 | `api.cities.publishCity(id, data)` | `PUT /api/cities/{id}/publish` | `publishCity` |
 
-Авторизация — без кодогенерации и thunk (`src/modules/authApi.ts`, свой экземпляр axios):
+Авторизация — без кодогенерации и thunk: `axios.post` вызывается прямо в обработчике кнопки, ответ вручную передаётся в Redux:
 
-| Функция | Запрос | Что делает компонент |
-|---|---|---|
-| `loginRequest` | `POST /api/users/login` | `dispatch(loginSuccess(user))` |
-| `logoutRequest` | `POST /api/users/logout` | `dispatch(logout())` |
+| Кнопка | Где | Запрос | Затем |
+|---|---|---|---|
+| «Войти» | `LoginPage.tsx`, `handleSubmit` | `axios.post('/api/users/login', { username, password })` | `dispatch(loginSuccess(data))`, переход в ленту |
+| «Выход» | `BottomNav.tsx`, `handleLogout` | `axios.post('/api/users/logout')` | `dispatch(logout())` — сброс пользователя и фильтра |
 
 ## Состояние Redux
 
@@ -166,7 +166,6 @@ src/
   components/                   AppHeader, BottomNav, CityCard, CityFilter, CityImage, CityVideo, LoadingOverlay
   pages/                        FeedPage, CitiesPage, AddCityPage, LoginPage
   modules/
-    authApi.ts                  вход и выход через axios
     errors.ts                   разбор ошибок axios, «бэкенд недоступен»
     media.ts                    файлы по умолчанию, переписывание ссылок MinIO на /minio
     mock.ts, mockQueries.ts     коллекция mock-объектов и запросы к ней
