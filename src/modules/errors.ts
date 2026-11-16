@@ -3,8 +3,8 @@ import axios from 'axios'
 // Бэкенд недоступен: нет ответа или proxy Vite вернул 5xx (FastAPI не запущен).
 // Только в этом случае гостю показываются mock-объекты.
 export const isBackendDown = (error: unknown): boolean => {
-  if (!axios.isAxiosError(error)) return false
   if (axios.isCancel(error)) return false
+  if (!axios.isAxiosError(error)) return false
   return !error.response || error.response.status >= 500
 }
 

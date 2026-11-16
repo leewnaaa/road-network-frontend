@@ -11,11 +11,6 @@ export const loginRequest = async (username: string, password: string): Promise<
   return data
 }
 
-export const registerRequest = async (username: string, password: string): Promise<UserOut> => {
-  const { data } = await http.post<UserOut>('', { username, password })
-  return data
-}
-
 export const logoutRequest = async (): Promise<MessageOut> => {
   const { data } = await http.post<MessageOut>('/logout')
   return data

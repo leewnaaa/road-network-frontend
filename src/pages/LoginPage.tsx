@@ -2,7 +2,7 @@ import { FC, FormEvent, useState } from 'react'
 import { Alert, Button, Form, Spinner } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { loginRequest, registerRequest } from '../modules/authApi'
+import { loginRequest } from '../modules/authApi'
 import { errorMessage } from '../modules/errors'
 import { ROUTES } from '../Routes'
 import { loginSuccess } from '../slices/userSlice'
@@ -21,11 +21,11 @@ const LoginPage: FC = () => {
 
   const authMessage = (err: unknown) => {
     if (axios.isAxiosError(err) && err.response?.status === 401) return 'Неверный логин или пароль'
-    if (axios.isAxiosError(err) && err.response?.status === 409) return 'Логин уже занят'
     return errorMessage(err, 'Ошибка авторизации')
   }
 
-  const submit = async (register: boolean) => {
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault()
     if (!username || !password) {
       setError('Введите логин и пароль')
       return
@@ -33,7 +33,6 @@ const LoginPage: FC = () => {
     setSubmitting(true)
     setError(null)
     try {
-      if (register) await registerRequest(username, password)
       const user = await loginRequest(username, password)
       dispatch(loginSuccess(user))
       navigate(ROUTES.FEED)
@@ -41,11 +40,6 @@ const LoginPage: FC = () => {
       setError(authMessage(err))
       setSubmitting(false)
     }
-  }
-
-  const handleSubmit = (event: FormEvent) => {
-    event.preventDefault()
-    submit(false)
   }
 
   return (
@@ -77,9 +71,6 @@ const LoginPage: FC = () => {
 
         <Button type="submit" className="filter-apply-btn" disabled={submitting}>
           {submitting ? <Spinner animation="border" size="sm" /> : 'Войти'}
-        </Button>
-        <Button type="button" className="outline-btn" disabled={submitting} onClick={() => submit(true)}>
-          Зарегистрироваться
         </Button>
 
         {error && <Alert variant="danger" className="form-error">{error}</Alert>}

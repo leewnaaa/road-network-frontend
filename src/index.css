@@ -403,19 +403,6 @@ p { margin-bottom: 0; }
 /* ============================================
    ЛР6: авторизация, добавление, удаление, загрузка
    ============================================ */
-.main-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.header-user {
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
-  opacity: .85;
-}
-
 /* Анимация загрузки: перекрывает экран и блокирует кнопки */
 .loading-overlay {
   position: absolute;

@@ -70,7 +70,6 @@ npm run dev                  # http://localhost:3000
 | Функция | Запрос | Что делает компонент |
 |---|---|---|
 | `loginRequest` | `POST /api/users/login` | `dispatch(loginSuccess(user))` |
-| `registerRequest` | `POST /api/users` | затем `loginRequest` |
 | `logoutRequest` | `POST /api/users/logout` | `dispatch(logout())` |
 
 ## Состояние Redux
@@ -103,9 +102,8 @@ store
 | 1 | Лента | `/`, `/?city_id=<id>` | просмотр, «Дальше» | + лайк ❤️ / снятие лайка |
 | 2 | Добавление | `/cities/add` | недоступна (→ `/login`) | шаг 1: название, фото, видео → черновик; шаг 2: описание, координаты → публикация |
 | 3 | Плитка | `/cities` | список с фильтром по широте | + «Удалить» на своих карточках |
-| 4 | Вход / Выход | `/login` | форма входа и регистрации | в меню «Выход»: сброс состояния и фильтра |
+| 4 | Вход / Выход | `/login` | форма входа | в меню «Выход»: сброс состояния и фильтра |
 
-В шапке справа — «Гость» или логин пользователя.
 
 ## Диаграмма прецедентов
 
@@ -121,7 +119,7 @@ rectangle "SPA ДОРСЕТЬ (React)" {
   usecase "Листать ленту «Дальше»" as UC2
   usecase "Смотреть плитку городов" as UC3
   usecase "Фильтровать по широте" as UC4
-  usecase "Войти / зарегистрироваться" as UC5
+  usecase "Войти" as UC5
   usecase "Ставить и снимать лайк" as UC6
   usecase "Добавить город (черновик)" as UC7
   usecase "Опубликовать город" as UC8
@@ -168,7 +166,7 @@ src/
   components/                   AppHeader, BottomNav, CityCard, CityFilter, CityImage, CityVideo, LoadingOverlay
   pages/                        FeedPage, CitiesPage, AddCityPage, LoginPage
   modules/
-    authApi.ts                  вход/регистрация/выход через axios
+    authApi.ts                  вход и выход через axios
     errors.ts                   разбор ошибок axios, «бэкенд недоступен»
     media.ts                    файлы по умолчанию, переписывание ссылок MinIO на /minio
     mock.ts, mockQueries.ts     коллекция mock-объектов и запросы к ней
