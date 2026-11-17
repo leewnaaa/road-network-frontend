@@ -104,53 +104,6 @@ store
 | 3 | Плитка | `/cities` | список с фильтром по широте | + «Удалить» на своих карточках |
 | 4 | Вход / Выход | `/login` | форма входа | в меню «Выход»: сброс состояния и фильтра |
 
-
-## Диаграмма прецедентов
-
-```plantuml
-@startuml
-left to right direction
-actor Гость
-actor Пользователь
-Пользователь -|> Гость
-
-rectangle "SPA ДОРСЕТЬ (React)" {
-  usecase "Смотреть ленту городов" as UC1
-  usecase "Листать ленту «Дальше»" as UC2
-  usecase "Смотреть плитку городов" as UC3
-  usecase "Фильтровать по широте" as UC4
-  usecase "Войти" as UC5
-  usecase "Ставить и снимать лайк" as UC6
-  usecase "Добавить город (черновик)" as UC7
-  usecase "Опубликовать город" as UC8
-  usecase "Удалить свой город" as UC9
-  usecase "Выйти" as UC10
-}
-
-Гость --> UC1
-Гость --> UC2
-Гость --> UC3
-Гость --> UC4
-Гость --> UC5
-Пользователь --> UC6
-Пользователь --> UC7
-Пользователь --> UC9
-Пользователь --> UC10
-UC7 <.. UC8 : <<extend>>
-@enduml
-```
-
-## Порядок показа (скриншоты)
-
-1–2. Бэкенд остановлен → Лента и Плитка с mock-данными (в Network запрос `/api/...` с ошибкой 500 от proxy).
-3–6. Бэкенд запущен → 4 страницы: Лента, Плитка, Вход, Добавление.
-7–8. Изменить запись в БД (Adminer `http://localhost:8081`, таблица `cities`) → обновить Плитку.
-9. Войти → F5 → в Redux DevTools `user.isAuthenticated: false`, во вкладке Application кука `session_id` осталась.
-10. Скопировать `session_id` в Insomnia/Postman → `GET http://127.0.0.1:8000/api/cities` с кукой → `is_mine: 1`.
-11–12. Состояния Redux — `src/store.ts`, `src/slices/*`; axios в кодогенерации — `src/api/Api.ts` (`HttpClient`, `axios.create`).
-13–14. Сгенерированные методы в thunk — `fetchCities` → `api.cities.listCities`, `likeCity` → `api.cities.likeCity` и т.д.
-15–16. Network: `/api/cities?lat_max=55` через proxy, `/minio/cities/<uuid>.jpg` — имена файлов из MinIO.
-
 ## Структура
 
 ```
