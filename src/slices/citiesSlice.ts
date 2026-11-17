@@ -13,7 +13,7 @@ export const LAT_MAX = 70
 const DEFAULT_FILTERS: CityFilters = { latMax: LAT_MAX }
 
 interface CitiesState {
-  filters: CityFilters // фильтр пользователя на странице «Плитка»
+  filters: CityFilters
   list: City[]
   source: DataSource
   error: string | null
@@ -26,8 +26,6 @@ const initialState: CitiesState = {
   error: null,
 }
 
-// GET /api/cities?lat_max= — список городов с фильтром из Redux.
-// Если бэкенд недоступен и пользователь гость — берём коллекцию mock-объектов.
 export const fetchCities = createAsyncThunk<
   { data: City[]; source: DataSource },
   void,
@@ -46,7 +44,6 @@ export const fetchCities = createAsyncThunk<
   }
 })
 
-// DELETE /api/cities/{id} — мягкое удаление своего города
 export const deleteCity = createAsyncThunk<number, number, { rejectValue: string }>(
   'cities/deleteCity',
   async (cityId, { rejectWithValue }) => {
@@ -89,12 +86,11 @@ const citiesSlice = createSlice({
       .addCase(deleteCity.rejected, (state, action) => {
         state.error = action.payload ?? 'Не удалось удалить город'
       })
-      // лайк в ленте обновляет счётчик и на плитке
       .addCase(likeCity.fulfilled, (state, action) => {
         const city = state.list.find((item) => item.id === action.payload.city_id)
         if (city) city.likes_count = action.payload.likes_count
       })
-      // при выходе фильтр пользователя сбрасывается
+
       .addCase(logout, (state) => {
         state.filters = DEFAULT_FILTERS
         state.error = null

@@ -6,8 +6,6 @@ import cityDraftReducer from './slices/cityDraftSlice'
 import userReducer from './slices/userSlice'
 import loadingReducer from './slices/loadingSlice'
 
-// Глобальное хранилище. configureStore сам подключает middleware redux-thunk
-// (getDefaultMiddleware) и расширение Redux DevTools.
 export const store = configureStore({
   reducer: {
     cities: citiesReducer, // фильтр и список городов (плитка)
@@ -21,6 +19,5 @@ export const store = configureStore({
 export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch
 
-// Типизированные хуки
 export const useAppDispatch = useDispatch.withTypes<AppDispatch>()
 export const useAppSelector = useSelector.withTypes<RootState>()
